@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1088412598394",
+    "firebase_url": "https://sahabatmasjid-4a6347d2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "sahabatmasjid-4a6347d2",
+    "storage_bucket": "sahabatmasjid-4a6347d2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088412598394:android:f3def285a90b5fd097bbc3",
+        "android_client_info": {
+          "package_name": "com.sepertigamalamdev.sahabatmasjid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088412598394-7vae4usth42qrupkqtc0k9mnong07pgo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxQuqFA19O6_Fx9k1nVXlkJ960S_gICGk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088412598394-7vae4usth42qrupkqtc0k9mnong07pgo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
