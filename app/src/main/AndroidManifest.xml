@@ -17,7 +17,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            tools:ignore="WrongManifestParent">
+            android:label="SahabatMasjid"
+            tools:ignore="WrongManifestParent"
+            android:theme="@style/Theme.SahabatMasjid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
