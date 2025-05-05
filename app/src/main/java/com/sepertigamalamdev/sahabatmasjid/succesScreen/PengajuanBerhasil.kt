@@ -1,4 +1,4 @@
-package com.sepertigamalamdev.sahabatmasjid.peminjaman
+package com.sepertigamalamdev.sahabatmasjid.succesScreen
 
 
 import androidx.compose.foundation.background
@@ -27,7 +27,7 @@ fun SuccessScreen() {
             .background(Color(0xFF4CAF50))
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+//        verticalArrangement = Arrangement.Center
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

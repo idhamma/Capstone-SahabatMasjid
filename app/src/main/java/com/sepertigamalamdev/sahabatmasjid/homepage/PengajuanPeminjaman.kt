@@ -18,9 +18,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 
 @Composable
-fun ListBarang() {
+fun ListBarang(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -87,12 +91,12 @@ fun ListBarang() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Footer()
+        Footer(navController = navController )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ListBarangPreview(){
-    ListBarang()
+fun ListBarangPreview(navController: NavHostController = rememberNavController()){
+    ListBarang(navController = navController)
 }

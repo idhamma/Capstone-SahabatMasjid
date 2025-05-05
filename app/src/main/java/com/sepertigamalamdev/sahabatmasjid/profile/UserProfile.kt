@@ -3,10 +3,13 @@ package com.sepertigamalamdev.sahabatmasjid.profile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,9 +19,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
+import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
 
 @Composable
-fun UserProfile() {
+fun userProfileScreen(navController: NavController){
+    Scaffold(
+        bottomBar = { Footer(navController = navController) }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+            UserProfile(navController = navController)
+        }
+        }
+    }
+
+@Composable
+fun UserProfile(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -137,32 +161,26 @@ fun UserProfile() {
             fontSize = 16.sp,
             color = Color.Blue,
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.Start)
                 .clickable { /* Static for now */ }
         )
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        // Logout Button
-        Button(
-            onClick = { /* Static for now */ },
+        Text(
+            text = "Keluar",
+            fontSize = 16.sp,
+            color = Color.Red,
             modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.Red,
-                contentColor = Color.White
-            )
-        ) {
-            Text("Keluar")
-        }
+                .align(Alignment.Start)
+                .clickable { /* Static for now */ }
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ProfileSettingsScreenPreview() {
-    UserProfile()
+fun ProfileSettingsScreenPreview(navController: NavHostController = rememberNavController()) {
+    userProfileScreen(navController = navController)
 }

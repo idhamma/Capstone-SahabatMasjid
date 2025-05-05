@@ -1,7 +1,9 @@
 package com.sepertigamalamdev.sahabatmasjid.signup
 
+import androidx.compose.foundation.background
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,8 +21,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,9 +38,26 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
-import com.sepertigamalamdev.sahabatmasjid.landing.LandingScreen
+import com.sepertigamalamdev.sahabatmasjid.login.Login
+
 @Composable
 fun SignUpScreen(navController: NavController) {
+    Scaffold(
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(Color.White)
+        ) {
+
+            SignUp(navController = navController)
+
+        }
+    }
+}
+@Composable
+fun SignUp(navController: NavController) {
     // State for input fields
     var fullName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -49,7 +67,8 @@ fun SignUpScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -126,18 +145,6 @@ fun SignUpScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Position/Status Field
-        OutlinedTextField(
-            value = positionStatus,
-            onValueChange = { positionStatus = it },
-            label = { Text("Jabatan/Status") },
-            placeholder = { Text("") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Register Button
         Button(
             onClick = {}, // Empty since no functionality
@@ -151,16 +158,6 @@ fun SignUpScreen(navController: NavController) {
         ) {
             Text("Daftar")
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Forgot Password Link
-        Text(
-            text = "Lupa Password?",
-            color = Color.Blue,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center
-        )
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -191,7 +188,8 @@ fun BackIcon(navController: NavController) {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
+@Preview
 @Composable
 fun SignUpPreview(){
     val navController = rememberNavController()

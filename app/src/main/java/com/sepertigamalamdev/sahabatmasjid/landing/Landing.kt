@@ -27,7 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 import com.sepertigamalamdev.sahabatmasjid.login.LoginScreen
-import com.sepertigamalamdev.sahabatmasjid.signup.SignUpScreen
+import com.sepertigamalamdev.sahabatmasjid.signup.SignUp
 
 @Composable
 fun LandingScreen(
@@ -121,7 +121,7 @@ fun AppNavigation() {
             )
         }
         composable("login") { LoginScreen(navController = navController) }
-        composable("signUp") { SignUpScreen(navController = navController) }
+        composable("signUp") { SignUp(navController = navController) }
     }
 }
 

@@ -1,23 +1,28 @@
 package com.sepertigamalamdev.sahabatmasjid.login
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,10 +39,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
+
+@Composable
+fun LoginScreen(navController: NavController) {
+    Scaffold(
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+
+            Login(navController = navController)
+
+        }
+    }
+}
 
 
 @Composable
-fun LoginScreen(navController: NavController ){
+fun Login(navController: NavController ){
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -70,7 +92,7 @@ fun LoginScreen(navController: NavController ){
             label = { Text("Nomor Handphone") },
             placeholder = { Text("08123456789") },
             modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -96,7 +118,7 @@ fun LoginScreen(navController: NavController ){
 
         // Login Button
         Button(
-            onClick = {}, // Empty since no functionality
+            onClick = {navController.navigate("homepage")},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -117,6 +139,23 @@ fun LoginScreen(navController: NavController ){
             fontSize = 14.sp
         )
 
+        Row {
+            Text(
+                text = "Belum punya akun?",
+                color = Color.Blue,
+                fontSize = 14.sp
+            )
+
+            Text(
+                text = "Daftar",
+                color = Color.Blue,
+                fontSize = 14.sp,
+                modifier = Modifier.clickable {
+                    navController.navigate("signup")
+                }
+            )
+        }
+
         Spacer(modifier = Modifier.weight(1f))
 
         // Terms and Privacy Policy
@@ -135,5 +174,5 @@ fun LoginScreen(navController: NavController ){
 @Composable
 fun LoginScreenPreview(){
     val navController = rememberNavController()
-    LoginScreen(navController = navController)
+    Login(navController = navController)
 }

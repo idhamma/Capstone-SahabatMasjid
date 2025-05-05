@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +48,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 //fun HomepageScreen(){
@@ -272,9 +276,9 @@ import androidx.compose.ui.unit.sp
 //
 //}
 
-fun HomepageScreen() {
+fun HomepageScreen(navController: NavController) {
     Scaffold(
-        bottomBar = { Footer() }
+        bottomBar = { Footer(navController = navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -337,17 +341,29 @@ fun HomepageScreen() {
                             2 -> "Inventaris"
                             else -> "Jadwal Petugas"
                         }
-                        Box(
+                        val destination = when (index) {
+                            0 -> "keuangan" // Anda bisa menentukan rute untuk Keuangan
+                            1 -> "takmir"   // Anda bisa menentukan rute untuk Takmir
+                            2 -> "inventaris" // Rute untuk Inventaris
+                            else -> "jadwal_petugas" // Anda bisa menentukan rute untuk Jadwal Petugas
+                        }
+                        Button(
+                            onClick = { navController.navigate(destination) },
                             modifier = Modifier
-                                .background(Color.LightGray, RoundedCornerShape(8.dp))
                                 .size(80.dp),
-                            contentAlignment = Alignment.Center,
-//                    contentAlignmenr = Alignment.CenterHorizontally
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
                         ) {
-                            Text(text = tabName, fontSize = 12.sp)
+                            Text(
+                                text = tabName,
+                                fontSize = 12.sp,
+                                color = Color.Black,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
                         }
                     }
                 }
+
 
                 // Alur Peminjaman Barang
                 Text(
@@ -372,7 +388,7 @@ fun HomepageScreen() {
 
                         Spacer(modifier = Modifier.height(150.dp))
                         Button(
-                            onClick = { /* Handle click */ },
+                            onClick = {navController.navigate("pengajuanPeminjaman")},
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
@@ -391,6 +407,6 @@ fun HomepageScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun HomepageScreenPreview() {
-    HomepageScreen()
+fun HomepageScreenPreview(navController: NavHostController = rememberNavController()) {
+    HomepageScreen(navController = navController)
 }

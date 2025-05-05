@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun DetailRiwayat() {
+fun DetailPeminjaman() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -187,5 +187,5 @@ fun FormField(label: String, placeholder: String) {
 @Preview(showBackground = true)
 @Composable
 fun DetailPeminjamanPreview(){
-    DetailRiwayat()
+    DetailPeminjaman()
 }

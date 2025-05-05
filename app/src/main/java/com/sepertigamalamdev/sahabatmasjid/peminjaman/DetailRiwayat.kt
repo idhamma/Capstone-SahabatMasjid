@@ -5,7 +5,6 @@ package com.sepertigamalamdev.sahabatmasjid.peminjaman
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -21,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun DetailRiwayat2() {
+fun DetailRiwayat() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -154,5 +153,5 @@ fun DetailRiwayat2() {
 @Preview(showBackground = true)
 @Composable
 fun DetailRiwayatPreview(){
-    DetailRiwayat2()
+    DetailRiwayat()
 }

@@ -20,9 +20,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun Footer(){
+fun Footer(navController: NavController){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -41,6 +44,9 @@ fun Footer(){
                 .clip(CircleShape)
                 .background(Color(0xFF1A3C34))
                 .padding(4.dp)
+                .clickable{
+                    navController.navigate("homepage")
+                }
         )
 
         // Apps Icon
@@ -53,7 +59,7 @@ fun Footer(){
                 .clip(CircleShape)
                 .background(Color(0xFF1A3C34))
 //                .padding(4.dp)
-                .clickable { /* Static for now */ }
+                .clickable {navController.navigate("peminjaman")}
 
         )
 
@@ -66,13 +72,13 @@ fun Footer(){
                 .size(32.dp)
                 .clip(CircleShape)
                 .background(Color(0xFF1A3C34))
-                .clickable { /* Static for now */ }
+                .clickable {navController.navigate("profile")}
         )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun FooterPreview() {
-    Footer()
+fun FooterPreview(navController: NavHostController = rememberNavController()) {
+    Footer(navController = navController)
 }
