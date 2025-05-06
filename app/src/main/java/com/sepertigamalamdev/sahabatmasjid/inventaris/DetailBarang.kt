@@ -139,7 +139,7 @@ fun DetailBarangScreen(navController: NavController) {
 
             // Tombol Ajukan Peminjaman
             Button(
-                onClick = { },
+                onClick = { navController.navigate("pengajuanPeminjamanLanjut")},
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),

@@ -189,7 +189,7 @@ fun BorrowScreen(navController: NavController) {
 
                 // Tombol Ajukan Peminjaman
                 Button(
-                    onClick = { /* Handle click */ },
+                    onClick = { navController.navigate("suksesPinjam")},
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

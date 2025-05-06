@@ -388,7 +388,7 @@ fun HomepageScreen(navController: NavController) {
 
                         Spacer(modifier = Modifier.height(150.dp))
                         Button(
-                            onClick = {navController.navigate("pengajuanPeminjaman")},
+                            onClick = {navController.navigate("listBarangPinjam")},
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),

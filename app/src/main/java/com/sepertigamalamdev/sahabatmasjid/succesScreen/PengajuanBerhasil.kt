@@ -18,9 +18,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun SuccessScreen() {
+fun SuccessScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -101,6 +104,6 @@ fun SuccessScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun SuccessScreenPreview(){
-    SuccessScreen()
+fun SuccessScreenPreview(navController: NavHostController = rememberNavController()){
+    SuccessScreen(navController = navController)
 }

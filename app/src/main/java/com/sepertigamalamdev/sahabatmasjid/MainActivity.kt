@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.sepertigamalamdev.sahabatmasjid.homepage.BorrowItemListScreen
 import com.sepertigamalamdev.sahabatmasjid.homepage.BorrowScreen
 import com.sepertigamalamdev.sahabatmasjid.homepage.HomepageScreen
 import com.sepertigamalamdev.sahabatmasjid.inventaris.ItemListScreen
@@ -18,6 +19,7 @@ import com.sepertigamalamdev.sahabatmasjid.peminjaman.PeminjamanScreen
 import com.sepertigamalamdev.sahabatmasjid.profile.userProfileScreen
 import com.sepertigamalamdev.sahabatmasjid.signup.SignUp
 import com.sepertigamalamdev.sahabatmasjid.inventaris.DetailBarangScreen
+import com.sepertigamalamdev.sahabatmasjid.succesScreen.SuccessScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,9 +35,12 @@ class MainActivity : ComponentActivity() {
                     composable("homepage") { HomepageScreen(navController = navController) }
                     composable("peminjaman") { PeminjamanScreen(navController = navController) }
                     composable("profile") { userProfileScreen(navController = navController) }
-                    composable ("inventaris"){ItemListScreen(navController = navController)  }
+                    composable("inventaris"){ItemListScreen(navController = navController)  }
                     composable("detailBarang"){DetailBarangScreen(navController = navController)}
                     composable("pengajuanPeminjaman"){ BorrowScreen(navController = navController) }
+                    composable("listBarangPinjam"){ BorrowItemListScreen(navController = navController) }
+                    composable("pengajuanPeminjamanLanjut") { BorrowScreen(navController = navController) }
+                    composable("suksesPinjam"){ SuccessScreen(navController = navController) }
                 }
             }
         }
