@@ -1,5 +1,6 @@
 package com.sepertigamalamdev.sahabatmasjid.homepage
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,11 +40,17 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -51,6 +58,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 @Composable
 //fun HomepageScreen(){
@@ -277,6 +289,49 @@ import androidx.navigation.compose.rememberNavController
 //}
 
 fun HomepageScreen(navController: NavController) {
+    var nickname by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(true) }
+
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val uid = currentUser?.uid
+    val context = LocalContext.current
+
+    // Listener untuk pembaruan data secara real-time
+    DisposableEffect(uid) {
+        if (uid != null) {
+            val database = FirebaseDatabase.getInstance()
+            val userRef = database.getReference("users").child(uid)
+
+            val listener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.let {
+                        nickname = it.child("nickname").getValue(String::class.java) ?: ""
+
+                    }
+                    isLoading = false
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(
+                        context, "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT
+                    ).show()
+                    isLoading = false
+                }
+            }
+
+            userRef.addValueEventListener(listener)
+
+            // Hapus listener saat composable dihancurkan
+            onDispose {
+                userRef.removeEventListener(listener)
+            }
+        } else {
+            navController.navigate("Login")
+        }
+
+        onDispose { } // Dibutuhkan oleh DisposableEffect meskipun tidak ada tambahan logika
+    }
+
     Scaffold(
         bottomBar = { Footer(navController = navController) }
     ) { innerPadding ->
@@ -290,7 +345,7 @@ fun HomepageScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+//                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Salam
@@ -300,7 +355,7 @@ fun HomepageScreen(navController: NavController) {
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
-                    text = "JEMAAH",
+                    text = nickname,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 4.dp)
@@ -332,7 +387,7 @@ fun HomepageScreen(navController: NavController) {
                 // Tabs menggunakan LazyRow
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
                 ) {
                     items(4) { index ->
                         val tabName = when (index) {
