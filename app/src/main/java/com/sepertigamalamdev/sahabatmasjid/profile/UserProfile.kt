@@ -255,6 +255,7 @@ fun ProfileUser(navController: NavController) {
 @Composable
 fun Profile(navController: NavController) {
     var username by remember { mutableStateOf("") }
+    var nickname by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
@@ -274,6 +275,7 @@ fun Profile(navController: NavController) {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     snapshot.let {
                         username = it.child("name").getValue(String::class.java) ?: ""
+                        nickname = it.child("nickname").getValue(String::class.java) ?: ""
                         email = it.child("email").getValue(String::class.java) ?: ""
                         address = it.child("address").getValue(String::class.java) ?: ""
                         phoneNumber = it.child("phoneNumber").getValue(String::class.java) ?: ""
@@ -338,8 +340,10 @@ fun Profile(navController: NavController) {
             }
 
             item {
-                DataProfile(navController = navController,
+                DataProfile(
+                    navController = navController,
                     username = username,
+                    nickname = nickname,
                     phoneNumber = phoneNumber,
                     email = email,
                     address = address,
@@ -361,7 +365,8 @@ fun Profile(navController: NavController) {
                                     ).show()
                                 }
                         }
-                    })
+                    },
+                )
             }
         }
     }
@@ -400,23 +405,27 @@ fun Profile(navController: NavController) {
 @Composable
 fun DataProfile(
     username: String,
+    nickname: String,
     phoneNumber: String,
     email: String,
     address: String,
     navController: NavController,
-    onSave: (String, String) -> Unit
+    onSave: (String, String) -> Unit,
+
+
 ) {
     val context = LocalContext.current
     // Pemetaan label ke variabel database
     val fieldMap = mapOf(
         "Nama" to "name",
+        "Nama Panggilan" to "nickname",
         "Nomor Telepon" to "phoneNumber",
         "Email" to "email",
         "Alamat" to "address"
     )
 
     val dataFields = listOf(
-        "Nama" to username, "Nomor Telepon" to phoneNumber, "Email" to email, "Alamat" to address
+        "Nama" to username,"Nama Panggilan" to nickname, "Nomor Telepon" to phoneNumber, "Email" to email, "Alamat" to address
     )
 
     Column(
@@ -459,6 +468,7 @@ fun FieldDataProfile(
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var textFieldValue by remember { mutableStateOf(value) }
+    var isEditable: Boolean = true
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -511,8 +521,10 @@ fun FieldDataProfile(
                     fontWeight = FontWeight(500),
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = { isEditing = true }) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                if (isEditable) {
+                    IconButton(onClick = { isEditing = true }) {
+                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                    }
                 }
             }
         }

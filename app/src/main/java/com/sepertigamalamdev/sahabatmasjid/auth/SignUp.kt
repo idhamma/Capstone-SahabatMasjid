@@ -1,9 +1,8 @@
-package com.sepertigamalamdev.sahabatmasjid.signup
+package com.sepertigamalamdev.sahabatmasjid.auth
 
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -25,7 +23,6 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,14 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
@@ -243,8 +238,10 @@ fun SignUpScreen(navController: NavController) {
     }
 
     fun saveUserDataToDatabase(userId: String, name: String, email: String) {
+        val nickname = name.trim().split(" ").firstOrNull() ?: name
         val user = mapOf(
             "name" to name,
+            "nickname" to nickname,
             "email" to email,
             "phoneNumber" to "",
             "address" to "",
@@ -253,7 +250,7 @@ fun SignUpScreen(navController: NavController) {
         database.child("users").child(userId).setValue(user)
             .addOnSuccessListener {
                 Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                navController.navigate("Masuk")
+                navController.navigate("homepage")
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to save user data", Toast.LENGTH_SHORT).show()
@@ -404,19 +401,21 @@ fun SignUpScreen(navController: NavController) {
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                auth.currentUser?.uid?.let { userId ->
+                                val userId = auth.currentUser?.uid
+                                if (userId != null) {
+                                    // Simpan data ke Firebase Database
                                     saveUserDataToDatabase(userId, name, email)
-                                } ?: run {
+                                } else {
                                     Toast.makeText(
                                         context,
-                                        "Failed to retrieve user information",
+                                        "Gagal mendapatkan ID pengguna.",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             } else {
                                 Toast.makeText(
                                     context,
-                                    "Signup failed: ${task.exception?.message}",
+                                    "Pendaftaran gagal: ${task.exception?.message}",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -431,5 +430,6 @@ fun SignUpScreen(navController: NavController) {
         ) {
             Text("Daftar", fontSize = 16.sp)
         }
+
     }
 }
