@@ -1,4 +1,4 @@
-package com.sepertigamalamdev.sahabatmasjid.homepage
+package com.sepertigamalamdev.sahabatmasjid.peminjaman
 
 
 import androidx.compose.foundation.background
@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
+import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
 
 @Composable
 fun ListBarang(navController: NavController) {
@@ -91,7 +91,7 @@ fun ListBarang(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Footer(navController = navController )
+        Footer(navController = navController)
     }
 }
 

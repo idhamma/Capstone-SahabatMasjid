@@ -95,44 +95,7 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
 
             barang?.let { item ->
                 // Show data only after it is fetched
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Ikon barang
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .background(Color.LightGray, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = item.name.take(1).uppercase(),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Gray
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        // Detail informasi barang
-                        Column {
-                            Text(text = item.name, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                            Text(text = "Kode Inventaris: ${item.kodeInventaris}", fontSize = 12.sp, color = Color.Gray)
-                            Text(text = "Jumlah Tersedia: ${item.stock} unit dari ${item.total} total", fontSize = 12.sp, color = Color.Gray)
-                            Text(text = "Kondisi Barang: ${kondisiText(item.kondisi)}", fontSize = 12.sp, color = Color.Gray)
-                            Text(text = "Lokasi Penyimpanan: ${item.place}", fontSize = 12.sp, color = Color.Gray)
-                        }
-                    }
-                }
+                DetailBarang(item)
 
                 if (item.availability == true) {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -151,7 +114,7 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
 //                    Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
-                        onClick = { navController.navigate("pengajuanPeminjamanLanjut") },
+                        onClick = { navController.navigate("pengajuanPeminjaman/${itemId}") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
@@ -161,7 +124,7 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
                     }
                 }
             } ?: run {
-                Text("Memuat data barang... database gak dapet", modifier = Modifier.padding(top = 16.dp))
+                Text("Memuat data barang... ", modifier = Modifier.padding(top = 16.dp))
             }
 
 
@@ -169,6 +132,47 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
     }
 }
 
+@Composable
+fun DetailBarang(item : Barang){
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Ikon barang
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(Color.LightGray, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = item.name.take(1).uppercase(),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Detail informasi barang
+            Column {
+                Text(text = item.name, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                Text(text = "Kode Inventaris: ${item.kodeInventaris}", fontSize = 12.sp, color = Color.Gray)
+                Text(text = "Jumlah Tersedia: ${item.stock} unit dari ${item.total} total", fontSize = 12.sp, color = Color.Gray)
+                Text(text = "Kondisi Barang: ${kondisiText(item.kondisi)}", fontSize = 12.sp, color = Color.Gray)
+                Text(text = "Lokasi Penyimpanan: ${item.place}", fontSize = 12.sp, color = Color.Gray)
+            }
+        }
+    }
+}
 
 
 // Fungsi bantu konversi kondisi
