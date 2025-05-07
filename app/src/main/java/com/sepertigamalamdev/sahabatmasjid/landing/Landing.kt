@@ -26,8 +26,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
-import com.sepertigamalamdev.sahabatmasjid.login.LoginScreen
-import com.sepertigamalamdev.sahabatmasjid.signup.SignUpScreen
+import com.sepertigamalamdev.sahabatmasjid.auth.LoginScreen
+import com.sepertigamalamdev.sahabatmasjid.auth.SignUpScreen
 
 @Composable
 fun LandingScreen(

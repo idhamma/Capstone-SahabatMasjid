@@ -17,10 +17,14 @@ data class Barang(
 
 
 data class Masjid(
-    var id: String = "",
-    var name: String = "",
-    var alamat: String = ""
+    val id: String = "",
+    val name: String = "",
+    val alamat: String = "",
+    val operatorUids: List<String> = emptyList(),
+    val jemaahUids: List<String> = emptyList(),
+    val barang: List<Barang> = emptyList()
 )
+
 
 data class emailOperator(
     var masjid: Masjid = Masjid(),

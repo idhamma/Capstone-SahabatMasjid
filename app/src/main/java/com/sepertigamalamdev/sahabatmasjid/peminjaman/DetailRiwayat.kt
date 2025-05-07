@@ -131,11 +131,11 @@ fun DetailRiwayat() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Form Detail Peminjaman
-        FormField(label = "Nama Barang *", placeholder = "Nama Barang")
-        FormField(label = "Jumlah Barang *", placeholder = "Jumlah Barang")
-        FormField(label = "Tanggal Pinjam *", placeholder = "DD/MM/YYYY")
-        FormField(label = "Tanggal Pengembalian *", placeholder = "DD/MM/YYYY")
-        FormField(label = "Catatan *", placeholder = "Keterangan keperluan")
+//        FormField(label = "Nama Barang *", placeholder = "Nama Barang")
+//        FormField(label = "Jumlah Barang *", placeholder = "Jumlah Barang")
+//        FormField(label = "Tanggal Pinjam *", placeholder = "DD/MM/YYYY")
+//        FormField(label = "Tanggal Pengembalian *", placeholder = "DD/MM/YYYY")
+//        FormField(label = "Catatan *", placeholder = "Keterangan keperluan")
 
 
         Button(

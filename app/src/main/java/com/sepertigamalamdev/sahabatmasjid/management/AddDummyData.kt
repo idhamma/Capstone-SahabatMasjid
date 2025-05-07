@@ -7,7 +7,6 @@ import com.google.firebase.database.FirebaseDatabase
 fun simpanBarangDummy() {
     // Dummy data
     val dummyMasjid = Masjid(
-        id = "MSJ001",
         name = "Masjid Al-Falah",
         alamat = "Jl. Merdeka No. 10, Jakarta"
     )
@@ -150,18 +149,18 @@ fun simpanBarangDummy() {
 //
 //    // Simpan barang
 //    val refMasjid = database.getReference("barang").push()
-    val refBarang = database.getReference("barang")
-    dummyBarangList.forEach { barang ->
-        val key = refBarang.push().key
-        key?.let {
-            val barangWithId = barang.copy(id = it) // sisipkan id
-            refBarang.child(it).setValue(barangWithId)
-        }
-    }
+//    val refBarang = database.getReference("barang")
+//    dummyBarangList.forEach { barang ->
+//        val key = refBarang.push().key
+//        key?.let {
+//            val barangWithId = barang.copy(id = it) // sisipkan id
+//            refBarang.child(it).setValue(barangWithId)
+//        }
+//    }
 
-//    // Simpan masjid
-//    val refMasjid = database.getReference("masjid").push()
-//    refMasjid.setValue(dummyMasjid)
+    // Simpan masjid
+    val refMasjid = database.getReference("masjid").push()
+    refMasjid.setValue(dummyMasjid)
 //
 //    // Simpan email operator
 //    val refEmailOp = database.getReference("emailOperator").push()
