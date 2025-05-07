@@ -2,10 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-//    alias(libs.plugins.google.gms.google.services)
     id("com.google.devtools.ksp")
-//    id("com.android.application")
+//    alias(libs.plugins.google.gms.google.services)
     id("com.google.gms.google-services")
+
 
 }
 
@@ -63,6 +63,7 @@ dependencies {
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("com.google.firebase:firebase-database:21.0.0")
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.tooling)
     implementation(libs.androidx.compose.tooling.preview)
@@ -81,7 +82,7 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-    implementation(libs.firebase.database)
+//    implementation(libs.firebase.database)
 
     // Testing
     testImplementation(libs.junit)
