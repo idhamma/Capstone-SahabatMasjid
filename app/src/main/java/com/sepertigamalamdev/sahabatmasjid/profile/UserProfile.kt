@@ -1,186 +1,670 @@
 package com.sepertigamalamdev.sahabatmasjid.profile
 
+//import androidx.compose.foundation.background
+//import androidx.compose.foundation.clickable
+//import androidx.compose.foundation.layout.*
+//import androidx.compose.foundation.rememberScrollState
+//import androidx.compose.foundation.shape.CircleShape
+//import androidx.compose.foundation.verticalScroll
+//import androidx.compose.material.*
+//import androidx.compose.material.icons.Icons
+//import androidx.compose.material.icons.filled.Edit
+//import androidx.compose.material3.Scaffold
+//import androidx.compose.runtime.Composable
+//import androidx.compose.ui.Alignment
+//import androidx.compose.ui.Modifier
+//import androidx.compose.ui.draw.clip
+//import androidx.compose.ui.graphics.Color
+//import androidx.compose.ui.text.style.TextAlign
+//import androidx.compose.ui.tooling.preview.Preview
+//import androidx.compose.ui.unit.dp
+//import androidx.compose.ui.unit.sp
+//import androidx.navigation.NavController
+//import androidx.navigation.NavHostController
+//import androidx.navigation.compose.rememberNavController
+//import androidx.navigation.navOptions
+//import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
+//
+//@Composable
+//fun userProfileScreen(navController: NavController){
+//    Scaffold(
+//        bottomBar = { Footer(navController = navController) }
+//    ) { innerPadding ->
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(innerPadding)
+//                .verticalScroll(rememberScrollState())
+//        ) {
+//            UserProfile(navController = navController)
+//        }
+//        }
+//    }
+//
+//@Composable
+//fun UserProfile(navController: NavController) {
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color.White)
+//            .padding(horizontal = 16.dp)
+//    ) {
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        // Title
+//        Text(
+//            text = "Profile Settings",
+//            fontSize = 20.sp,
+//            color = Color.Black,
+//            modifier = Modifier.fillMaxWidth(),
+//            textAlign = TextAlign.Center
+//        )
+//
+//        Spacer(modifier = Modifier.height(32.dp))
+//
+//        // Profile Image Placeholder
+//        Box(
+//            modifier = Modifier
+//                .size(100.dp)
+//                .clip(CircleShape)
+//                .background(Color.Gray)
+//                .align(Alignment.CenterHorizontally)
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        // Full Name
+//        Text(
+//            text = "Fulan bin Awan",
+//            fontSize = 18.sp,
+//            color = Color.Black,
+//            modifier = Modifier.align(Alignment.CenterHorizontally)
+//        )
+//
+//        Spacer(modifier = Modifier.height(32.dp))
+//
+//        // Name Field
+//        OutlinedTextField(
+//            value = "Fulan bin Awan",
+//            onValueChange = { /* Static for now */ },
+//            label = { Text("Nama") },
+//            trailingIcon = {
+//                Icon(
+//                    imageVector = Icons.Default.Edit,
+//                    contentDescription = "Edit",
+//                    tint = Color.Gray
+//                )
+//            },
+//            modifier = Modifier.fillMaxWidth(),
+//            readOnly = true
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        // Phone Number Field
+//        OutlinedTextField(
+//            value = "083456789",
+//            onValueChange = { /* Static for now */ },
+//            label = { Text("Nomor Telepon") },
+//            trailingIcon = {
+//                Icon(
+//                    imageVector = Icons.Default.Edit,
+//                    contentDescription = "Edit",
+//                    tint = Color.Gray
+//                )
+//            },
+//            modifier = Modifier.fillMaxWidth(),
+//            readOnly = true
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        // Email Field
+//        OutlinedTextField(
+//            value = "pemudatahajud@gmail.com",
+//            onValueChange = { /* Static for now */ },
+//            label = { Text("Email") },
+//            trailingIcon = {
+//                Icon(
+//                    imageVector = Icons.Default.Edit,
+//                    contentDescription = "Edit",
+//                    tint = Color.Gray
+//                )
+//            },
+//            modifier = Modifier.fillMaxWidth(),
+//            readOnly = true
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        // Address Field
+//        OutlinedTextField(
+//            value = "Jln. Raya Tlogomas Gg. 3 No.66, Tlogomas",
+//            onValueChange = { /* Static for now */ },
+//            label = { Text("Alamat") },
+//            trailingIcon = {
+//                Icon(
+//                    imageVector = Icons.Default.Edit,
+//                    contentDescription = "Edit",
+//                    tint = Color.Gray
+//                )
+//            },
+//            modifier = Modifier.fillMaxWidth(),
+//            readOnly = true
+//        )
+//
+//        Spacer(modifier = Modifier.height(32.dp))
+//
+//        // Change Password Option
+//        Text(
+//            text = "Ganti Kata Sandi",
+//            fontSize = 16.sp,
+//            color = Color.Blue,
+//            modifier = Modifier
+//                .align(Alignment.Start)
+//                .clickable { /* Static for now */ }
+//        )
+//
+//        Spacer(modifier = Modifier.height(32.dp))
+//
+//        Text(
+//            text = "Keluar",
+//            fontSize = 16.sp,
+//            color = Color.Red,
+//            modifier = Modifier
+//                .align(Alignment.Start)
+//                .clickable { /* Static for now */ }
+//        )
+//
+//    }
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun ProfileSettingsScreenPreview(navController: NavHostController = rememberNavController()) {
+//    userProfileScreen(navController = navController)
+//}
+
+
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.R
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
+import coil.compose.rememberImagePainter
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
 
 @Composable
-fun userProfileScreen(navController: NavController){
+fun ProfileUser(navController: NavController) {
     Scaffold(
         bottomBar = { Footer(navController = navController) }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-        ) {
-            UserProfile(navController = navController)
-        }
+        Box(modifier = Modifier.padding(innerPadding)) {
+            Profile(navController)
         }
     }
-
+}
 @Composable
-fun UserProfile(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 16.dp)
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
+fun Profile(navController: NavController) {
+    var username by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(true) }
 
-        // Title
-        Text(
-            text = "Profile Settings",
-            fontSize = 20.sp,
-            color = Color.Black,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val uid = currentUser?.uid
+    val context = LocalContext.current
 
-        Spacer(modifier = Modifier.height(32.dp))
+    // Listener untuk pembaruan data secara real-time
+    DisposableEffect(uid) {
+        if (uid != null) {
+            val database = FirebaseDatabase.getInstance()
+            val userRef = database.getReference("users").child(uid)
 
-        // Profile Image Placeholder
+            val listener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.let {
+                        username = it.child("name").getValue(String::class.java) ?: ""
+                        email = it.child("email").getValue(String::class.java) ?: ""
+                        address = it.child("address").getValue(String::class.java) ?: ""
+                        phoneNumber = it.child("phoneNumber").getValue(String::class.java) ?: ""
+                    }
+                    isLoading = false
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(
+                        context, "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT
+                    ).show()
+                    isLoading = false
+                }
+            }
+
+            userRef.addValueEventListener(listener)
+
+            // Hapus listener saat composable dihancurkan
+            onDispose {
+                userRef.removeEventListener(listener)
+            }
+        } else {
+            navController.navigate("Login")
+        }
+
+        onDispose { } // Dibutuhkan oleh DisposableEffect meskipun tidak ada tambahan logika
+    }
+
+    if (isLoading) {
+        // Tampilkan indikator loading jika data sedang dimuat
         Box(
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else {
+        LazyColumn(
             modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-                .align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Full Name
-        Text(
-            text = "Fulan bin Awan",
-            fontSize = 18.sp,
-            color = Color.Black,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Name Field
-        OutlinedTextField(
-            value = "Fulan bin Awan",
-            onValueChange = { /* Static for now */ },
-            label = { Text("Nama") },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit",
-                    tint = Color.Gray
+                .fillMaxSize()
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                Text(
+                    text = "Profil",
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight(500)
                 )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true
-        )
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            item {
+                PhotoProfile()
+            }
 
-        // Phone Number Field
-        OutlinedTextField(
-            value = "083456789",
-            onValueChange = { /* Static for now */ },
-            label = { Text("Nomor Telepon") },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit",
-                    tint = Color.Gray
+            item {
+                Text(
+                    text = if (username.isNotEmpty()) username else "Nama belum diisi",
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge
                 )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true
-        )
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            item {
+                DataProfile(navController = navController,
+                    username = username,
+                    phoneNumber = phoneNumber,
+                    email = email,
+                    address = address,
+                    onSave = { fieldKey, newValue ->
+                        if (uid != null) {
+                            val updates: Map<String, Any> =
+                                mapOf(fieldKey to newValue) // Simpan sebagai String
 
-        // Email Field
-        OutlinedTextField(
-            value = "pemudatahajud@gmail.com",
-            onValueChange = { /* Static for now */ },
-            label = { Text("Email") },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit",
-                    tint = Color.Gray
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Address Field
-        OutlinedTextField(
-            value = "Jln. Raya Tlogomas Gg. 3 No.66, Tlogomas",
-            onValueChange = { /* Static for now */ },
-            label = { Text("Alamat") },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit",
-                    tint = Color.Gray
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Change Password Option
-        Text(
-            text = "Ganti Kata Sandi",
-            fontSize = 16.sp,
-            color = Color.Blue,
-            modifier = Modifier
-                .align(Alignment.Start)
-                .clickable { /* Static for now */ }
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text(
-            text = "Keluar",
-            fontSize = 16.sp,
-            color = Color.Red,
-            modifier = Modifier
-                .align(Alignment.Start)
-                .clickable { /* Static for now */ }
-        )
-
+                            FirebaseDatabase.getInstance().getReference("users").child(uid)
+                                .updateChildren(updates).addOnSuccessListener {
+                                    Toast.makeText(
+                                        context,
+                                        "$fieldKey berhasil diperbarui!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }.addOnFailureListener {
+                                    Toast.makeText(
+                                        context, "Gagal memperbarui $fieldKey.", Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
+                    })
+            }
+        }
     }
 }
 
-@Preview(showBackground = true)
+//@Composable
+//fun PhotoProfileold() {
+//    Box {
+//        val photoProfile = painterResource(id = R.drawable.bos_cipung)
+//
+//        Image(
+//            painter = photoProfile,
+//            contentDescription = "photo_profile",
+//            modifier = Modifier
+//                .size(150.dp)
+//                .clip(CircleShape),
+//            contentScale = ContentScale.Crop
+//        )
+//        Box(
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+//                .padding(4.dp)
+//        ) {
+//            Icon(imageVector = Icons.Filled.Edit,
+//                contentDescription = "edit_icon",
+//                tint = Color.White,
+//                modifier = Modifier
+//                    .size(32.dp)
+//                    .background(Color.Blue, CircleShape)
+//                    .clickable { /*TODO*/ }
+//                    .padding(8.dp))
+//        }
+//    }
+//}
+
 @Composable
-fun ProfileSettingsScreenPreview(navController: NavHostController = rememberNavController()) {
-    userProfileScreen(navController = navController)
+fun DataProfile(
+    username: String,
+    phoneNumber: String,
+    email: String,
+    address: String,
+    navController: NavController,
+    onSave: (String, String) -> Unit
+) {
+    val context = LocalContext.current
+    // Pemetaan label ke variabel database
+    val fieldMap = mapOf(
+        "Nama" to "name",
+        "Nomor Telepon" to "phoneNumber",
+        "Email" to "email",
+        "Alamat" to "address"
+    )
+
+    val dataFields = listOf(
+        "Nama" to username, "Nomor Telepon" to phoneNumber, "Email" to email, "Alamat" to address
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        dataFields.forEach { (label, value) ->
+            FieldDataProfile(label = label, value = value, onSave = { newValue ->
+                val fieldKey = fieldMap[label] // Dapatkan kunci dari peta
+                if (fieldKey != null) {
+                    onSave(fieldKey, newValue) // Gunakan kunci yang sesuai
+                } else {
+                    Toast.makeText(
+                        context, "Invalid field: $label", Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
+        }
+        Text(text = "Ganti Kata Sandi",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight(500),
+            color = Color.Blue,
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .clickable { /*TODO*/ })
+        Text(text = "Keluar",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight(500),
+            color = Color.Red,
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+                .clickable { navController.navigate("Login") })
+    }
+}
+
+@Composable
+fun FieldDataProfile(
+    label: String, value: String, onSave: (String) -> Unit
+) {
+    var isEditing by remember { mutableStateOf(false) }
+    var textFieldValue by remember { mutableStateOf(value) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            if (isEditing) {
+                TextField(
+                    value = textFieldValue, onValueChange = { newValue ->
+                        if (label == "Nomor Telepon" && newValue.all { it.isDigit() }) {
+                            textFieldValue = newValue
+                        } else if (label != "Nomor Telepon") {
+                            textFieldValue = newValue
+                        }
+                    }, singleLine = true, modifier = Modifier.weight(1f)
+                )
+                Row {
+                    IconButton(onClick = {
+                        onSave(textFieldValue)
+                        isEditing = false
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Simpan",
+                            tint = Color.Blue
+                        )
+                    }
+                    IconButton(onClick = {
+                        textFieldValue = value
+                        isEditing = false
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Batal",
+                            tint = Color.Red
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight(500),
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = { isEditing = true }) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                }
+            }
+        }
+        HorizontalDivider(
+            modifier = Modifier.padding(bottom = 16.dp), thickness = 0.25.dp, color = Color.Gray
+        )
+    }
+}
+
+//@Composable
+//fun PhotoProfileNew() {
+//    val currentUser = FirebaseAuth.getInstance().currentUser
+//    val database = FirebaseDatabase.getInstance().getReference("users").child(currentUser?.uid!!)
+//
+//    var photoUrl by remember { mutableStateOf("") }
+//
+//    //URL gambar profil dari database
+//    database.child("photoUrl").get().addOnSuccessListener {
+//        photoUrl = it.value as String? ?: ""
+//    }
+//
+//
+//    Box {
+//
+//        if (photoUrl.isNotEmpty()) {
+//            Image(
+//                painter = rememberImagePainter(photoUrl),
+//                contentDescription = "photo_profile",
+//                modifier = Modifier
+//                    .size(150.dp)
+//                    .clip(CircleShape),
+//                contentScale = ContentScale.Crop
+//            )
+//        } else {
+//            Image(
+//                painter = painterResource(id = R.drawable.bos_cipung),
+//                contentDescription = "default_photo",
+//                modifier = Modifier
+//                    .size(150.dp)
+//                    .clip(CircleShape),
+//                contentScale = ContentScale.Crop
+//            )
+//        }
+//
+//        Box(
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+//                .padding(4.dp)
+//        ) {
+//            Icon(imageVector = Icons.Filled.Edit,
+//                contentDescription = "edit_icon",
+//                tint = Color.White,
+//                modifier = Modifier
+//                    .size(32.dp)
+//                    .background(Color.Blue, CircleShape)
+//                    .clickable { /*TODO*/ }
+//                    .padding(8.dp))
+//        }
+//    }
+//
+//}
+
+//@Composable
+//fun PhotoProfile2() {
+//    val context = LocalContext.current
+//    val currentUser = FirebaseAuth.getInstance().currentUser
+//    val database = FirebaseDatabase.getInstance().getReference("users").child(currentUser?.uid!!)
+//
+//    var photoUrl by remember { mutableStateOf("") }
+//
+//    val databases = FirebaseDatabase.getInstance()
+//    val tokenRef = databases.getReference("Token/Token/upload")
+//    var tokenVal = ""
+//
+//    tokenRef.get().addOnSuccessListener { snapshot ->
+//        if (snapshot.exists()) {
+//            tokenVal = snapshot.value.toString()
+//        }
+//    }
+//
+//    // Ambil URL gambar profil dari database
+//    DisposableEffect(Unit) {
+//        database.child("photoUrl").get().addOnSuccessListener {
+//            val newUrl = it.value as String? ?: ""
+//            photoUrl = "$newUrl?timestamp=${System.currentTimeMillis()}" // Hindari cache
+//        }
+//        onDispose { }
+//    }
+//
+//    val imagePickerLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.GetContent()
+//    ) { uri: Uri? ->
+//        uri?.let {
+//            val token = tokenVal
+////            UploadImageToGitHub(it, token, context)
+//        }
+//    }
+//
+//    Box {
+//        if (photoUrl.isNotEmpty()) {
+//            Image(
+//                painter = rememberImagePainter(photoUrl),
+//                contentDescription = "photo_profile",
+//                modifier = Modifier
+//                    .size(150.dp)
+//                    .clip(CircleShape),
+//                contentScale = ContentScale.Crop
+//            )
+//        } else {
+//            Image(
+//                painter = painterResource(id = R.drawable.),
+//                contentDescription = "default_photo",
+//                modifier = Modifier
+//                    .size(150.dp)
+//                    .clip(CircleShape),
+//                contentScale = ContentScale.Crop
+//            )
+//        }
+//
+//        Box(
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+//                .padding(4.dp)
+//        ) {
+//            Icon(imageVector = Icons.Filled.Edit,
+//                contentDescription = "edit_icon",
+//                tint = Color.White,
+//                modifier = Modifier
+//                    .size(32.dp)
+//                    .background(Color.Blue, CircleShape)
+//                    .clickable {
+//                        // Menyuruh pengguna memilih gambar
+//                        imagePickerLauncher.launch("image/*")
+//                    }
+//                    .padding(8.dp))
+//        }
+//    }
+//}
+
+@Composable
+fun PhotoProfile() {
+    Box(
+        modifier = Modifier
+            .size(150.dp)
+            .clip(CircleShape)
+            .background(Color.LightGray), // Warna default polos
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Foto",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.DarkGray
+        )
+    }
 }
