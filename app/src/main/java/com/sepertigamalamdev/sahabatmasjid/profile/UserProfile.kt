@@ -189,7 +189,7 @@ package com.sepertigamalamdev.sahabatmasjid.profile
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.R
+//import androidx.activity.compose.R
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -205,6 +205,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -264,6 +266,15 @@ fun Profile(navController: NavController) {
     val currentUser = FirebaseAuth.getInstance().currentUser
     val uid = currentUser?.uid
     val context = LocalContext.current
+
+    val fieldMessageMap = mapOf(
+        "name" to "Nama",
+        "nickname" to "Nama Panggilan",
+        "phoneNumber" to "Nomor Handphone",
+        "email" to "Email",
+        "address" to "Alamat"
+    )
+
 
     // Listener untuk pembaruan data secara real-time
     DisposableEffect(uid) {
@@ -341,6 +352,7 @@ fun Profile(navController: NavController) {
 
             item {
                 DataProfile(
+
                     navController = navController,
                     username = username,
                     nickname = nickname,
@@ -352,16 +364,17 @@ fun Profile(navController: NavController) {
                             val updates: Map<String, Any> =
                                 mapOf(fieldKey to newValue) // Simpan sebagai String
 
+                            val fieldMessage = fieldMessageMap[fieldKey] ?: fieldKey
                             FirebaseDatabase.getInstance().getReference("users").child(uid)
                                 .updateChildren(updates).addOnSuccessListener {
                                     Toast.makeText(
                                         context,
-                                        "$fieldKey berhasil diperbarui!",
+                                        "$fieldMessage berhasil diperbarui!",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }.addOnFailureListener {
                                     Toast.makeText(
-                                        context, "Gagal memperbarui $fieldKey.", Toast.LENGTH_SHORT
+                                        context, "Gagal memperbarui $fieldMessage.", Toast.LENGTH_SHORT
                                     ).show()
                                 }
                         }
@@ -470,6 +483,7 @@ fun FieldDataProfile(
     var textFieldValue by remember { mutableStateOf(value) }
     var isEditable: Boolean = true
 
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
@@ -483,14 +497,19 @@ fun FieldDataProfile(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (isEditing) {
-                TextField(
-                    value = textFieldValue, onValueChange = { newValue ->
+                BasicTextField(
+                    value = textFieldValue,
+                    onValueChange = { newValue ->
                         if (label == "Nomor Telepon" && newValue.all { it.isDigit() }) {
                             textFieldValue = newValue
                         } else if (label != "Nomor Telepon") {
                             textFieldValue = newValue
                         }
-                    }, singleLine = true, modifier = Modifier.weight(1f)
+                    },
+                    singleLine = true, modifier = Modifier.weight(1f)
+                    .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
+                    .padding(12.dp),
+                decorationBox = { innerTextField -> innerTextField() }
                 )
                 Row {
                     IconButton(onClick = {
@@ -521,7 +540,7 @@ fun FieldDataProfile(
                     fontWeight = FontWeight(500),
                     modifier = Modifier.weight(1f)
                 )
-                if (isEditable) {
+                if (label != "Email") {
                     IconButton(onClick = { isEditing = true }) {
                         Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
                     }

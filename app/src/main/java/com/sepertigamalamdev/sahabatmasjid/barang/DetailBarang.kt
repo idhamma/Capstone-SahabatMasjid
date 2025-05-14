@@ -120,7 +120,11 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
                             .height(50.dp),
                         shape = RoundedCornerShape(25.dp)
                     ) {
-                        Text(text = "Ajukan Peminjaman", fontSize = 16.sp)
+                        Text(text = "Ajukan Peminjaman",
+                            fontSize = 16.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             } ?: run {

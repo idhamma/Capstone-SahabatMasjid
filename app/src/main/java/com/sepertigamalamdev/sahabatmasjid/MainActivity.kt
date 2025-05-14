@@ -30,6 +30,8 @@ import com.sepertigamalamdev.sahabatmasjid.auth.LoginScreen
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.PeminjamanScreen
 import com.sepertigamalamdev.sahabatmasjid.auth.SignUpScreen
 import com.sepertigamalamdev.sahabatmasjid.barang.DetailBarangScreen
+import com.sepertigamalamdev.sahabatmasjid.peminjaman.DetailBorrowScreen
+import com.sepertigamalamdev.sahabatmasjid.peminjaman.DetailPeminjaman
 import com.sepertigamalamdev.sahabatmasjid.profile.ProfileUser
 import com.sepertigamalamdev.sahabatmasjid.succesScreen.SuccessScreen
 
@@ -70,6 +72,10 @@ class MainActivity : ComponentActivity() {
                         composable("pengajuanPeminjaman/{id}") { backStackEntry ->
                             val itemId = backStackEntry.arguments?.getString("id") ?: ""
                             BorrowScreen(navController = navController, itemId = itemId)
+                        }
+                        composable("detailPeminjaman/{id}") { backStackEntry ->
+                            val borrowId = backStackEntry.arguments?.getString("Id") ?: ""
+                            DetailBorrowScreen(navController = navController, borrowId = borrowId)
                         }
                         composable("suksesPinjam") { SuccessScreen(navController = navController) }
                     }

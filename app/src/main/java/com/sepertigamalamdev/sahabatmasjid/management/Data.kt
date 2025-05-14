@@ -37,15 +37,32 @@ data class emailJemaah(
 )
 
 data class user(
+    var id: String = "",
     var name: String = "",
+    var nickname: String = "",
     var email: String = "",
-    var password: String = ""
+    var phoneNumber: String = "",
+    var address: String = "",
+    var photoUrl: String = "",
+    var role: String = "",
+    var timestamp: Long = 0,
 )
 
-data class peminjaman(
-    var masjid: Masjid = Masjid(),
-    var barang: Barang,
+data class Peminjaman(
+    var id: String = "",
+    var uid: String = "",
+    var barangid: String = "",
+    var emailPeminjam: String = "",
+    var namaPeminjam: String = "",
+    var phoneNumberPeminjam: String = "",
+    var alamatPeminjam: String = "",
+    var status: String = "",
+    var tanggalPengajuan: String = "",
     var tanggalPinjam: String = "",
-    var tanggalKembali: String = "",
-    var peminjam: user,
-)
+    var tanggalPengembalian: String = "",
+    var timestamp: Long = 0,
+
+    )
+
+
+

@@ -15,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,8 +37,14 @@ import java.util.Calendar
 
 import android.app.DatePickerDialog
 import android.util.Log
+import androidx.compose.foundation.border
+import androidx.compose.material.Checkbox
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Color
 import com.sepertigamalamdev.sahabatmasjid.barang.DetailBarang
 import com.sepertigamalamdev.sahabatmasjid.management.Barang
 import java.text.SimpleDateFormat
@@ -85,9 +90,13 @@ fun BorrowScreen(navController: NavController,itemId :String) {
             var address by remember { mutableStateOf("") }
             var isLoading by remember { mutableStateOf(true) }
 
+            var jumlahPinjam by remember { mutableStateOf(0) }
+            var isChecked by remember { mutableStateOf(false) }
+
             val usernameTemp = remember { mutableStateOf("") }
             val phoneNumberTemp = remember { mutableStateOf("") }
             val addressTemp = remember { mutableStateOf("") }
+            val catatanTemp = remember { mutableStateOf("") }
 
 
             val tanggalPinjam = remember { mutableStateOf("") }
@@ -125,7 +134,6 @@ fun BorrowScreen(navController: NavController,itemId :String) {
 
                     userRef.addValueEventListener(listener)
 
-                    // Hapus listener saat composable dihancurkan
                     onDispose {
                         userRef.removeEventListener(listener)
                     }
@@ -133,7 +141,7 @@ fun BorrowScreen(navController: NavController,itemId :String) {
                     navController.navigate("Login")
                 }
 
-                onDispose { } // Dibutuhkan oleh DisposableEffect meskipun tidak ada tambahan logika
+                onDispose { }
             }
 
             LaunchedEffect(username, phoneNumber, address) {
@@ -211,16 +219,85 @@ fun BorrowScreen(navController: NavController,itemId :String) {
 
 
                 Column(modifier = Modifier.padding(16.dp)) {
-
-
-
-
                     FormFieldPinjam(label = "Nama", "Fulan", usernameTemp)
                     FormFieldPinjam(label = "Alamat", "Jalan Veteran No 1", addressTemp)
                     FormFieldPinjam(label = "Nomor Handphone", "081234567890", phoneNumberTemp)
+                    //add jumlah
+                    barang?.let { item ->
+                        Text(
+                            text = "Jumlah Peminjaman",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
 
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+//                                .fillMaxWidth()
+                                .height(48.dp) // Sesuaikan tinggi agar sejajar
+                                .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
+                                .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+                                .padding(horizontal = 4.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        if (jumlahPinjam > 1) jumlahPinjam--
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Default.Close,
+                                        contentDescription = "Kurangi"
+                                    ) //sementara
+                                }
+
+                                Text(
+                                    text = jumlahPinjam.toString(),
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    fontSize = 16.sp
+                                )
+
+                                IconButton(
+                                    onClick = {
+                                        if (jumlahPinjam < item.stock) jumlahPinjam++
+                                    }
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = "Tambah")
+                                }
+
+                                Spacer(modifier = Modifier.width(6.dp))
+
+                                if (jumlahPinjam == item.stock){
+                                    Text(
+                                        text = " |      Maks: ${item.stock}",
+                                        color = Color.Red,
+                                        fontSize = 14.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                }
+
+                            }
+
+
+                        }
+                    }
                     FormFieldTanggal(label = "Tanggal Peminjaman", valueState = tanggalPinjam)
                     FormFieldTanggal(label = "Tanggal Pengembalian", valueState = tanggalKembali)
+
+
+
+                    //add catatan
+                    val catatan = remember { mutableStateOf("") }
+
+                    FormFieldCatatan(
+                        label = "Catatan",
+                        placeholder = "Masukkan catatan tambahan...",
+                        valueState = catatan
+                    )
 
 
                 }
@@ -233,11 +310,10 @@ fun BorrowScreen(navController: NavController,itemId :String) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
-                        checked = false,
-                        onCheckedChange = {
-
-                        }
+                        checked = isChecked,
+                        onCheckedChange = { isChecked = it }
                     )
+
                     Text(
                         text = "Saya setuju dengan peraturan peminjaman barang dari masjid",
                         fontSize = 14.sp,
@@ -254,13 +330,15 @@ fun BorrowScreen(navController: NavController,itemId :String) {
                         if (uid != null) {
                             val database = FirebaseDatabase.getInstance()
                             val borrowRef = database.getReference("peminjaman").push()
+                            val id = borrowRef.key // Ambil ID unik dari push()
 
                             val tanggalPengajuan = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
                             val timestamp = System.currentTimeMillis()
 
                             val borrowData = mapOf(
+                                "id" to id,
                                 "uid" to uid,
-                                "barang" to barang,
+                                "barangid" to itemId,
                                 "namaPeminjam" to usernameTemp.value,
                                 "alamatPeminjam" to addressTemp.value,
                                 "emailPeminjam" to email,
@@ -288,7 +366,7 @@ fun BorrowScreen(navController: NavController,itemId :String) {
                         .fillMaxWidth()
                         .height(50.dp),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34A853))
                 ) {
                     Text(text = "Ajukan Peminjaman", fontSize = 16.sp, color = Color.White)
                 }
@@ -381,5 +459,42 @@ fun FormFieldTanggal(label: String, valueState: MutableState<String>) {
                 tint = Color.Gray
             )
         }
+    }
+}
+
+@Composable
+fun FormFieldCatatan(label: String, placeholder: String, valueState: MutableState<String>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        BasicTextField(
+            value = valueState.value,
+            onValueChange = { valueState.value = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 120.dp) // Membuat tinggi minimum untuk textarea
+                .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
+                .padding(12.dp),
+            decorationBox = { innerTextField ->
+                Box {
+                    if (valueState.value.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                    }
+                    innerTextField()
+                }
+            }
+        )
     }
 }

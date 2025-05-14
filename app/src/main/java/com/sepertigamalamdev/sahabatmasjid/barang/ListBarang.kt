@@ -146,11 +146,19 @@ fun BarangCard(barang: Barang, navController: NavController) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Text(
-                text = barang.name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
+            Column {
+
+                Text(
+                    text = barang.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = "Kode Inventaris: " + barang.kodeInventaris,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Light
+                )
+            }
 
             Spacer(modifier = Modifier.weight(1f))
 
