@@ -352,7 +352,6 @@ fun Profile(navController: NavController) {
 
             item {
                 DataProfile(
-
                     navController = navController,
                     username = username,
                     nickname = nickname,
@@ -384,36 +383,6 @@ fun Profile(navController: NavController) {
         }
     }
 }
-
-//@Composable
-//fun PhotoProfileold() {
-//    Box {
-//        val photoProfile = painterResource(id = R.drawable.bos_cipung)
-//
-//        Image(
-//            painter = photoProfile,
-//            contentDescription = "photo_profile",
-//            modifier = Modifier
-//                .size(150.dp)
-//                .clip(CircleShape),
-//            contentScale = ContentScale.Crop
-//        )
-//        Box(
-//            modifier = Modifier
-//                .align(Alignment.BottomEnd)
-//                .padding(4.dp)
-//        ) {
-//            Icon(imageVector = Icons.Filled.Edit,
-//                contentDescription = "edit_icon",
-//                tint = Color.White,
-//                modifier = Modifier
-//                    .size(32.dp)
-//                    .background(Color.Blue, CircleShape)
-//                    .clickable { /*TODO*/ }
-//                    .padding(8.dp))
-//        }
-//    }
-//}
 
 @Composable
 fun DataProfile(
@@ -552,136 +521,6 @@ fun FieldDataProfile(
         )
     }
 }
-
-//@Composable
-//fun PhotoProfileNew() {
-//    val currentUser = FirebaseAuth.getInstance().currentUser
-//    val database = FirebaseDatabase.getInstance().getReference("users").child(currentUser?.uid!!)
-//
-//    var photoUrl by remember { mutableStateOf("") }
-//
-//    //URL gambar profil dari database
-//    database.child("photoUrl").get().addOnSuccessListener {
-//        photoUrl = it.value as String? ?: ""
-//    }
-//
-//
-//    Box {
-//
-//        if (photoUrl.isNotEmpty()) {
-//            Image(
-//                painter = rememberImagePainter(photoUrl),
-//                contentDescription = "photo_profile",
-//                modifier = Modifier
-//                    .size(150.dp)
-//                    .clip(CircleShape),
-//                contentScale = ContentScale.Crop
-//            )
-//        } else {
-//            Image(
-//                painter = painterResource(id = R.drawable.bos_cipung),
-//                contentDescription = "default_photo",
-//                modifier = Modifier
-//                    .size(150.dp)
-//                    .clip(CircleShape),
-//                contentScale = ContentScale.Crop
-//            )
-//        }
-//
-//        Box(
-//            modifier = Modifier
-//                .align(Alignment.BottomEnd)
-//                .padding(4.dp)
-//        ) {
-//            Icon(imageVector = Icons.Filled.Edit,
-//                contentDescription = "edit_icon",
-//                tint = Color.White,
-//                modifier = Modifier
-//                    .size(32.dp)
-//                    .background(Color.Blue, CircleShape)
-//                    .clickable { /*TODO*/ }
-//                    .padding(8.dp))
-//        }
-//    }
-//
-//}
-
-//@Composable
-//fun PhotoProfile2() {
-//    val context = LocalContext.current
-//    val currentUser = FirebaseAuth.getInstance().currentUser
-//    val database = FirebaseDatabase.getInstance().getReference("users").child(currentUser?.uid!!)
-//
-//    var photoUrl by remember { mutableStateOf("") }
-//
-//    val databases = FirebaseDatabase.getInstance()
-//    val tokenRef = databases.getReference("Token/Token/upload")
-//    var tokenVal = ""
-//
-//    tokenRef.get().addOnSuccessListener { snapshot ->
-//        if (snapshot.exists()) {
-//            tokenVal = snapshot.value.toString()
-//        }
-//    }
-//
-//    // Ambil URL gambar profil dari database
-//    DisposableEffect(Unit) {
-//        database.child("photoUrl").get().addOnSuccessListener {
-//            val newUrl = it.value as String? ?: ""
-//            photoUrl = "$newUrl?timestamp=${System.currentTimeMillis()}" // Hindari cache
-//        }
-//        onDispose { }
-//    }
-//
-//    val imagePickerLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.GetContent()
-//    ) { uri: Uri? ->
-//        uri?.let {
-//            val token = tokenVal
-////            UploadImageToGitHub(it, token, context)
-//        }
-//    }
-//
-//    Box {
-//        if (photoUrl.isNotEmpty()) {
-//            Image(
-//                painter = rememberImagePainter(photoUrl),
-//                contentDescription = "photo_profile",
-//                modifier = Modifier
-//                    .size(150.dp)
-//                    .clip(CircleShape),
-//                contentScale = ContentScale.Crop
-//            )
-//        } else {
-//            Image(
-//                painter = painterResource(id = R.drawable.),
-//                contentDescription = "default_photo",
-//                modifier = Modifier
-//                    .size(150.dp)
-//                    .clip(CircleShape),
-//                contentScale = ContentScale.Crop
-//            )
-//        }
-//
-//        Box(
-//            modifier = Modifier
-//                .align(Alignment.BottomEnd)
-//                .padding(4.dp)
-//        ) {
-//            Icon(imageVector = Icons.Filled.Edit,
-//                contentDescription = "edit_icon",
-//                tint = Color.White,
-//                modifier = Modifier
-//                    .size(32.dp)
-//                    .background(Color.Blue, CircleShape)
-//                    .clickable {
-//                        // Menyuruh pengguna memilih gambar
-//                        imagePickerLauncher.launch("image/*")
-//                    }
-//                    .padding(8.dp))
-//        }
-//    }
-//}
 
 @Composable
 fun PhotoProfile() {

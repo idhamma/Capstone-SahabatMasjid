@@ -39,7 +39,7 @@ data class RoleRequest(
     var requestedAt: Long = System.currentTimeMillis() // timestamp pengajuan
 )
 
-data class usera(
+data class User(
     var id: String = "",
     var name: String = "",
     var nickname: String = "",
@@ -47,8 +47,6 @@ data class usera(
     var phoneNumber: String = "",
     var address: String = "",
     var photoUrl: String = "",
-    var role: String = "",
-    var timestamp: Long = 0,
 )
 
 data class Peminjaman(

@@ -1,8 +1,6 @@
-package com.sepertigamalamdev.sahabatmasjid.management
+package com.sepertigamalamdev.sahabatmasjid.management.barang
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -35,37 +32,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.database.FirebaseDatabase
-import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
+import com.sepertigamalamdev.sahabatmasjid.management.Barang
 
 @Composable
 fun AddInventoryScreen(navController: NavController, masjidId : String) {
-
-    /*
-    data class Barang(
-    var id: String = "",
-    var masjidid: String = "",
-    var name: String = "",
-    var kodeInventaris: String = "",
-    var stock: Int = 0,
-    var total: Int = 0,
-    var kondisi: Int = 0,
-    var place: String = "",
-    var availability: Boolean = false, //availability = true if stock > 0 && dapatDipinjam == true
-    var dapatDipinjam: Boolean = false,
-    var imageUrl: String = "",
-)
-     */
-
-//
-//    var namaBarang by remember { mutableStateOf("Kabel") }
-//    var kategoriBarang by remember { mutableStateOf("Alat Rumah Tangga") }
-//    var kodeBarang by remember { mutableStateOf("INV-03") }
-//    var jumlahBarang by remember { mutableStateOf("3") }
 
     var name by remember { mutableStateOf("") }
     val masjidid = masjidId

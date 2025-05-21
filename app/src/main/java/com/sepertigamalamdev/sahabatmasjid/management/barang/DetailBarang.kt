@@ -1,4 +1,4 @@
-package com.sepertigamalamdev.sahabatmasjid.barang
+package com.sepertigamalamdev.sahabatmasjid.management.barang
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,6 +62,11 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
     Scaffold(
         bottomBar = { Footer(navController) }
     ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -99,10 +105,10 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
                 // Show data only after it is fetched
                 DetailBarang(item)
 
-                if (item.availability == true ) {
+                if (item.availability == true) {
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    if(item.stock > 0){
+                    if (item.stock > 0) {
                         androidx.compose.material3.Text(
                             text = "Ingin pinjam barang ini?",
                             fontSize = 18.sp,
@@ -121,13 +127,14 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
                                 .height(50.dp),
                             shape = RoundedCornerShape(25.dp)
                         ) {
-                            Text(text = "Ajukan Peminjaman",
+                            Text(
+                                text = "Ajukan Peminjaman",
                                 fontSize = 16.sp,
                                 color = Color.White,
                                 fontWeight = FontWeight.Medium
                             )
                         }
-                    }else{
+                    } else {
                         androidx.compose.material3.Text(
                             text = "Saat ini seluruh barang sedang dipinjam " +
                                     "\nSilahkan cek kembali nanti",
@@ -136,17 +143,27 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
                             fontStyle = FontStyle.Italic
                         )
                     }
-
-
-//                    Spacer(modifier = Modifier.height(16.dp))
-
-
                 }
             } ?: run {
                 Text("Memuat data barang... ", modifier = Modifier.padding(top = 16.dp))
             }
-
-
+        }
+            barang?.let { item ->
+                FloatingActionButton(
+                    onClick = { navController.navigate("editBarang/${item.id}") },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                    containerColor = Color(0xFF34A853),
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Create, //sementara
+                        contentDescription = "Add Item"
+                    )
+                }
+            }
         }
     }
 }

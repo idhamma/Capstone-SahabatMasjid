@@ -396,7 +396,7 @@ fun HomepageScreen(navController: NavController,masjidId : String) {
                                 0 -> "tambahBarang/$masjidId"   // Anda bisa menentukan rute untuk Takmir
                                 1 -> "inventaris/${false}/$masjidId" // Rute untuk Inventaris
                                 2 -> "jadwal_petugas" // Anda bisa menentukan rute untuk Jadwal Petugas
-                                else -> "manageJemaah"
+                                else -> "manageJemaah/$masjidId"
                             }
                             Button(
                                 onClick = { navController.navigate(destination) },
@@ -518,18 +518,3 @@ fun HomepageScreen(navController: NavController,masjidId : String) {
         }
     }
 }
-
-@Composable
-fun checkRole(userId : String){
-    val database = FirebaseDatabase.getInstance().getReference("role")
-
-
-}
-
-
-
-//@Preview(showBackground = true)
-//@Composable
-//fun HomepageScreenPreview(navController: NavHostController = rememberNavController()) {
-//    HomepageScreen(navController = navController)
-//}

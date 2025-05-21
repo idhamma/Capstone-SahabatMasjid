@@ -1,7 +1,6 @@
 package com.sepertigamalamdev.sahabatmasjid
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -19,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,18 +27,18 @@ import com.google.firebase.auth.FirebaseAuth
 //import com.sepertigamalamdev.sahabatmasjid.homepage.BorrowItemListScreen
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.BorrowScreen
 import com.sepertigamalamdev.sahabatmasjid.homepage.HomepageScreen
-import com.sepertigamalamdev.sahabatmasjid.barang.ItemListScreen
+import com.sepertigamalamdev.sahabatmasjid.management.barang.ItemListScreen
 import com.sepertigamalamdev.sahabatmasjid.auth.LoginScreen
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.PeminjamanScreen
 import com.sepertigamalamdev.sahabatmasjid.auth.SignUpScreen
-import com.sepertigamalamdev.sahabatmasjid.barang.DetailBarangScreen
+import com.sepertigamalamdev.sahabatmasjid.management.barang.DetailBarangScreen
 import com.sepertigamalamdev.sahabatmasjid.homepage.LandingScreen
-import com.sepertigamalamdev.sahabatmasjid.management.AddInventoryScreen
+import com.sepertigamalamdev.sahabatmasjid.management.barang.AddInventoryScreen
 import com.sepertigamalamdev.sahabatmasjid.management.ConfirmDataScreen
-import com.sepertigamalamdev.sahabatmasjid.management.simpanBarangDummy
-import com.sepertigamalamdev.sahabatmasjid.management.tambahMasjid
+import com.sepertigamalamdev.sahabatmasjid.management.DetailManageRoleScreen
+import com.sepertigamalamdev.sahabatmasjid.management.ManageRequestScreen
+import com.sepertigamalamdev.sahabatmasjid.management.barang.BarangEditSection
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.DetailBorrowScreen
-import com.sepertigamalamdev.sahabatmasjid.peminjaman.DetailPeminjaman
 import com.sepertigamalamdev.sahabatmasjid.profile.ProfileUser
 import com.sepertigamalamdev.sahabatmasjid.succesScreen.SuccessScreen
 
@@ -111,6 +109,11 @@ class MainActivity : ComponentActivity() {
                             val itemId = backStackEntry.arguments?.getString("id") ?: ""
                             DetailBarangScreen(navController = navController, itemId = itemId)
                         }
+                        composable("editBarang/{id}") { backStackEntry ->
+                            val itemId = backStackEntry.arguments?.getString("id") ?: ""
+                            BarangEditSection(navController = navController, itemId = itemId)
+                        }
+
 //                        composable("listBarangPinjam"){ ItemListScreen(navController = navController, true) }
                         composable("pengajuanPeminjaman/{id}") { backStackEntry ->
                             val itemId = backStackEntry.arguments?.getString("id") ?: ""
@@ -132,6 +135,16 @@ class MainActivity : ComponentActivity() {
                             ConfirmDataScreen(navController = navController, masjidid = masjidId)
                         }
 
+                        composable("manageJemaah/{id}"){backStackEntry ->
+                            val masjidId = backStackEntry.arguments?.getString("id") ?: ""
+                            ManageRequestScreen(navController = navController,masjidId)
+                        }
+
+
+                        composable("manageDetailJemaah/{id}"){backStackEntry ->
+                            val itemId = backStackEntry.arguments?.getString("id") ?: ""
+                            DetailManageRoleScreen(navController = navController,itemId = itemId)
+                        }
 
                     }
                 } else {

@@ -41,11 +41,10 @@ import androidx.compose.foundation.border
 import androidx.compose.material.Checkbox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
-import com.sepertigamalamdev.sahabatmasjid.barang.DetailBarang
+import com.sepertigamalamdev.sahabatmasjid.management.barang.DetailBarang
 import com.sepertigamalamdev.sahabatmasjid.management.Barang
 import java.text.SimpleDateFormat
 import java.util.Date

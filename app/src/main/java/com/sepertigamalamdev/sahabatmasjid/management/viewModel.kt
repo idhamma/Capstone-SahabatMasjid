@@ -13,6 +13,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.State
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.firestore.auth.User
+import com.sepertigamalamdev.sahabatmasjid.management.User as AppUser
+
 
 
 class UserViewModel : ViewModel() {
@@ -93,6 +96,23 @@ class UserViewModel : ViewModel() {
                 }
             })
     }
+
+    fun getUserByUid(uid: String, onResult: (AppUser?) -> Unit) {
+        val userRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
+
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(AppUser::class.java)
+                onResult(user)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                onResult(null)
+            }
+        })
+    }
+
+
 }
 
 class MasjidViewModel : ViewModel() {
@@ -124,6 +144,28 @@ class MasjidViewModel : ViewModel() {
 
     fun updateAlamat(alamat: String) {
         _masjid.value = _masjid.value.copy(alamat = alamat)
+    }
+
+    fun getRequestsByMasjidId(masjidId: String, onResult: (List<RoleRequest>) -> Unit) {
+        val database = FirebaseDatabase.getInstance()
+        val ref = database.getReference("roleRequests")
+
+        ref.orderByChild("masjidid").equalTo(masjidId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val requests = mutableListOf<RoleRequest>()
+                    for (child in snapshot.children) {
+                        val request = child.getValue(RoleRequest::class.java)
+                        request?.let { requests.add(it) }
+                    }
+                    onResult(requests)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Error fetching role requests", error.toException())
+                    onResult(emptyList())
+                }
+            })
     }
 }
 
