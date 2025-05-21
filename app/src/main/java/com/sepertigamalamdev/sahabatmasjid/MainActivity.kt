@@ -1,6 +1,7 @@
 package com.sepertigamalamdev.sahabatmasjid
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -18,9 +19,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 //import com.sepertigamalamdev.sahabatmasjid.homepage.BorrowItemListScreen
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.BorrowScreen
@@ -30,6 +34,11 @@ import com.sepertigamalamdev.sahabatmasjid.auth.LoginScreen
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.PeminjamanScreen
 import com.sepertigamalamdev.sahabatmasjid.auth.SignUpScreen
 import com.sepertigamalamdev.sahabatmasjid.barang.DetailBarangScreen
+import com.sepertigamalamdev.sahabatmasjid.homepage.LandingScreen
+import com.sepertigamalamdev.sahabatmasjid.management.AddInventoryScreen
+import com.sepertigamalamdev.sahabatmasjid.management.ConfirmDataScreen
+import com.sepertigamalamdev.sahabatmasjid.management.simpanBarangDummy
+import com.sepertigamalamdev.sahabatmasjid.management.tambahMasjid
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.DetailBorrowScreen
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.DetailPeminjaman
 import com.sepertigamalamdev.sahabatmasjid.profile.ProfileUser
@@ -43,14 +52,29 @@ class MainActivity : ComponentActivity() {
             SahabatMasjidTheme {
                 val navController = rememberNavController()
 
+
                 // State untuk menampung start destination
                 var startDestination by remember { mutableStateOf<String?>(null) }
 
                 // Cek apakah user sudah login atau belum
                 LaunchedEffect(Unit) {
                     val user = FirebaseAuth.getInstance().currentUser
-                    startDestination = if (user != null) "homepage" else "login"
+                    startDestination = if (user != null) "landing" else "login"
+
+//                    simpanBarangDummy()
                 }
+
+//                var context = LocalContext.current
+//
+//                tambahMasjid("Masjid Al-Ikhlas", "Jalan Merdeka No. 1") { success, errorMessage ->
+//                    if (success) {
+//                        Toast.makeText(context, "Berhasil menambahkan masjid", Toast.LENGTH_SHORT).show()
+//                    } else {
+//                        Toast.makeText(context, "Gagal: $errorMessage", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+
+
 
                 // Tampilkan hanya jika startDestination sudah dicek
                 if (startDestination != null) {
@@ -58,26 +82,57 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = startDestination!!
                     ) {
+                        composable("landing"){ LandingScreen(navController = navController) }
                         composable("login") { LoginScreen(navController = navController) }
                         composable("signup") { SignUpScreen(navController = navController) }
-                        composable("homepage") { HomepageScreen(navController = navController) }
+                        composable("homepage/{id}") { backStackEntry ->
+                            val masjidId = backStackEntry.arguments?.getString("id") ?: ""
+                            HomepageScreen(navController = navController, masjidId = masjidId)
+                        }
                         composable("peminjaman") { PeminjamanScreen(navController = navController) }
                         composable("profile") { ProfileUser(navController = navController) }
-                        composable("inventaris") { ItemListScreen(navController = navController) }
+                        composable(
+                            route = "inventaris/{borrow}/{masjid}",
+                            arguments = listOf(
+                                navArgument("borrow") { type = NavType.BoolType },
+                                navArgument("masjid") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val borrow = backStackEntry.arguments?.getBoolean("borrow") ?: false
+                            val masjid = backStackEntry.arguments?.getString("masjid") ?: ""
+                            ItemListScreen(
+                                navController = navController,
+                                borrow = borrow,
+                                masjidid = masjid
+                            )
+                        }
+
                         composable("detailBarang/{id}") { backStackEntry ->
                             val itemId = backStackEntry.arguments?.getString("id") ?: ""
                             DetailBarangScreen(navController = navController, itemId = itemId)
                         }
-                        composable("listBarangPinjam"){ ItemListScreen(navController = navController, true) }
+//                        composable("listBarangPinjam"){ ItemListScreen(navController = navController, true) }
                         composable("pengajuanPeminjaman/{id}") { backStackEntry ->
                             val itemId = backStackEntry.arguments?.getString("id") ?: ""
                             BorrowScreen(navController = navController, itemId = itemId)
                         }
                         composable("detailPeminjaman/{id}") { backStackEntry ->
-                            val borrowId = backStackEntry.arguments?.getString("Id") ?: ""
+                            val borrowId = backStackEntry.arguments?.getString("id") ?: ""
                             DetailBorrowScreen(navController = navController, borrowId = borrowId)
                         }
                         composable("suksesPinjam") { SuccessScreen(navController = navController) }
+
+                        composable("tambahBarang/{id}"){ backStackEntry ->
+                            val masjidId = backStackEntry.arguments?.getString("id") ?: ""
+                            AddInventoryScreen(navController = navController, masjidId = masjidId)
+                        }
+
+                        composable("applyJemaah/{id}") { backStackEntry ->
+                            val masjidId = backStackEntry.arguments?.getString("id") ?: ""
+                            ConfirmDataScreen(navController = navController, masjidid = masjidId)
+                        }
+
+
                     }
                 } else {
                     // Tampilan loading sementara pengecekan status login

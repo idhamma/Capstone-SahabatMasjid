@@ -261,7 +261,7 @@ fun LoginScreen(navController: NavController) {
                     email = email,
                     password = password,
                     onSuccess = {
-                        navController.navigate("Homepage") {
+                        navController.navigate("landing") {
                             popUpTo("Login") { inclusive = true }
                         }
                     },

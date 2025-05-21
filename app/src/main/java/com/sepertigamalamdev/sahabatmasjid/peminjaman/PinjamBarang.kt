@@ -327,7 +327,7 @@ fun BorrowScreen(navController: NavController,itemId :String) {
                 Button(
                     onClick = {
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
-                        if (uid != null) {
+                        if (uid != null && barang != null) {
                             val database = FirebaseDatabase.getInstance()
                             val borrowRef = database.getReference("peminjaman").push()
                             val id = borrowRef.key // Ambil ID unik dari push()
@@ -346,21 +346,44 @@ fun BorrowScreen(navController: NavController,itemId :String) {
                                 "tanggalPinjam" to tanggalPinjam.value,
                                 "tanggalPengembalian" to tanggalKembali.value,
                                 "tanggalPengajuan" to tanggalPengajuan,
+                                "jumlah" to jumlahPinjam,
                                 "timestamp" to timestamp,
                                 "status" to "diajukan"
                             )
 
                             borrowRef.setValue(borrowData)
                                 .addOnSuccessListener {
-                                    navController.navigate("suksesPinjam")
+                                    // Kurangi stok setelah data peminjaman berhasil disimpan
+                                    val newStock = (barang?.stock ?: 0) - jumlahPinjam
+                                    if (newStock >= 0) {
+                                        database.getReference("barang").child(itemId).child("stock")
+                                            .setValue(newStock)
+                                            .addOnSuccessListener {
+                                                navController.navigate("suksesPinjam")
+                                            }
+                                            .addOnFailureListener { error ->
+                                                Toast.makeText(
+                                                    context,
+                                                    "Gagal mengurangi stok: ${error.message}",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Stok tidak mencukupi",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                                 .addOnFailureListener { error ->
                                     Toast.makeText(context, "Gagal menyimpan data: ${error.message}", Toast.LENGTH_SHORT).show()
                                 }
                         } else {
-                            Toast.makeText(context, "Pengguna tidak ditemukan", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Pengguna atau data barang tidak ditemukan", Toast.LENGTH_SHORT).show()
                         }
-                    },
+                    }
+                    ,
 
                             modifier = Modifier
                         .fillMaxWidth()

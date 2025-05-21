@@ -1,4 +1,5 @@
-package com.sepertigamalamdev.sahabatmasjid.barang
+package com.sepertigamalamdev.sahabatmasjid.homepage
+
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -9,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -36,27 +36,19 @@ import com.sepertigamalamdev.sahabatmasjid.management.Barang
 import com.sepertigamalamdev.sahabatmasjid.management.Masjid
 
 @Composable
-fun ItemListScreen(navController: NavController, borrow: Boolean = false, masjidid: String) {
-    val database = FirebaseDatabase.getInstance().getReference("barang")
-    val barangList = remember { mutableStateListOf<Barang>() }
+fun LandingScreen(navController: NavController) {
+    val database = FirebaseDatabase.getInstance().getReference("masjid")
+    val masjidList = remember { mutableStateListOf<Masjid>() }
 
     LaunchedEffect(Unit) {
         database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                barangList.clear()
-                for (barangSnapshot in snapshot.children) {
-                    val barang = barangSnapshot.getValue(Barang::class.java)
+                masjidList.clear()
+                for (masjidSnapshot in snapshot.children) {
+                    val masjid = masjidSnapshot.getValue(Masjid::class.java)
 
-                    // ❗ Filter berdasarkan masjidid
-                    if (barang?.masjidid == masjidid) {
-                        if (borrow) {
-                            if (barang.availability == true && barang.dapatDipinjam == true && barang.stock > 0) {
-                                barangList.add(barang)
-                            }
-                        } else {
-                            barangList.add(barang)
-                        }
-                    }
+                        // Tambahkan semua barang tanpa filter
+                    masjid?.let { masjidList.add(it) }
                 }
             }
 
@@ -66,77 +58,56 @@ fun ItemListScreen(navController: NavController, borrow: Boolean = false, masjid
         })
     }
 
+
     Scaffold(bottomBar = { Footer(navController) }) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(horizontal = 16.dp)
         ) {
-            Column(
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                    Text(
-                        text = "Daftar Barang",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 8.dp)
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back"
                     )
                 }
-
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(barangList) { barang ->
-                        BarangCard(barang, navController)
-                    }
-                }
-            }
-
-            FloatingActionButton(
-                onClick = { navController.navigate("tambahBarang/$masjidid") },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                containerColor = Color(0xFF34A853),
-                contentColor = Color.White,
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Item"
+                Text(
+                    text = "Daftar Masjid",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
 
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(masjidList) { masjid ->
+                    BarangCard(masjid, navController)
+                }
+            }
         }
     }
 }
 @Composable
-fun BarangCard(barang: Barang, navController: NavController) {
-    var id = barang.id
+fun BarangCard(masjid: Masjid, navController: NavController) {
+    var id = masjid.id
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
                 // Navigasi ke detail barang, kirimkan id barang
                 if (!id.isNullOrBlank()) {
-                    navController.navigate("detailBarang/$id")
+                    navController.navigate("homepage/$id")
                 } else {
                     Log.e("NAVIGATION", "Barang ID is null or blank")
 
-                    navController.navigate("landing")
+                    navController.navigate("homepage")
                 }
             },
         shape = RoundedCornerShape(8.dp),
@@ -156,7 +127,7 @@ fun BarangCard(barang: Barang, navController: NavController) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = barang.name.firstOrNull()?.uppercase() ?: "?",
+                    text = masjid.name.firstOrNull()?.uppercase() ?: "?",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray
@@ -168,21 +139,16 @@ fun BarangCard(barang: Barang, navController: NavController) {
             Column {
 
                 Text(
-                    text = barang.name,
+                    text = masjid.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "Kode Inventaris: " + barang.kodeInventaris,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Light
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "",
+                text = "Detail",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary,
@@ -193,7 +159,7 @@ fun BarangCard(barang: Barang, navController: NavController) {
                     } else {
                         Log.e("NAVIGATION", "Barang ID is null or blank")
 
-                        navController.navigate("landing")
+                        navController.navigate("homepage")
                     }
                 }
             )

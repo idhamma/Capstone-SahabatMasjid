@@ -2,7 +2,7 @@ package com.sepertigamalamdev.sahabatmasjid.management
 
 data class Barang(
     var id: String = "",
-    var masjid: Masjid = Masjid(),
+    var masjidid: String = "",
     var name: String = "",
     var kodeInventaris: String = "",
     var stock: Int = 0,
@@ -17,26 +17,29 @@ data class Barang(
 
 
 data class Masjid(
-    val id: String = "",
-    val name: String = "",
-    val alamat: String = "",
-    val operatorUids: List<String> = emptyList(),
-    val jemaahUids: List<String> = emptyList(),
-    val barang: List<Barang> = emptyList()
+    var id: String = "",
+    var name: String = "",
+    var alamat: String = "",
 )
 
 
-data class emailOperator(
-    var masjid: Masjid = Masjid(),
-    var email: String = ""
+data class Role(
+    var id: String = "",
+    var uid: String = "",
+    var masjidid: String = "",
+    var uid_masjidid: String = "",
+    var status: String = "",
 )
 
-data class emailJemaah(
-    var masjid: Masjid = Masjid(),
-    var email: String = ""
+data class RoleRequest(
+    var id: String = "",
+    var uid: String = "",
+    var masjidid: String = "",
+    var status: String = "pending", // pending, approved, rejected
+    var requestedAt: Long = System.currentTimeMillis() // timestamp pengajuan
 )
 
-data class user(
+data class usera(
     var id: String = "",
     var name: String = "",
     var nickname: String = "",
@@ -64,5 +67,8 @@ data class Peminjaman(
 
     )
 
-
-
+data class Jemaah(
+    val name: String,
+    val phone: String,
+    val email: String
+)

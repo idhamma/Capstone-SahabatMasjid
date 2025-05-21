@@ -4,57 +4,39 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -63,6 +45,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.sepertigamalamdev.sahabatmasjid.management.MasjidViewModel
+import com.sepertigamalamdev.sahabatmasjid.management.UserViewModel
 
 @Composable
 //fun HomepageScreen(){
@@ -288,15 +272,31 @@ import com.google.firebase.database.ValueEventListener
 //
 //}
 
-fun HomepageScreen(navController: NavController) {
+fun HomepageScreen(navController: NavController,masjidId : String) {
+    val viewModel: UserViewModel = viewModel()
+    val masjidViewModel: MasjidViewModel = viewModel()
+
     var nickname by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(true) }
+    var userStatus by remember { mutableStateOf<String?>(null) }
 
     val currentUser = FirebaseAuth.getInstance().currentUser
     val uid = currentUser?.uid
     val context = LocalContext.current
 
-    // Listener untuk pembaruan data secara real-time
+    // Ambil role
+    LaunchedEffect(Unit) {
+        viewModel.getUserRole(uid, masjidId) { status ->
+            userStatus = status
+        }
+    }
+
+    // Ambil data masjid
+    LaunchedEffect(masjidId) {
+        masjidViewModel.fetchMasjidData(masjidId)
+    }
+
+    // Listener user data
     DisposableEffect(uid) {
         if (uid != null) {
             val database = FirebaseDatabase.getInstance()
@@ -304,33 +304,25 @@ fun HomepageScreen(navController: NavController) {
 
             val listener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    snapshot.let {
-                        nickname = it.child("nickname").getValue(String::class.java) ?: ""
-
-                    }
+                    nickname = snapshot.child("nickname").getValue(String::class.java) ?: ""
                     isLoading = false
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(
-                        context, "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(context, "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT).show()
                     isLoading = false
                 }
             }
 
             userRef.addValueEventListener(listener)
-
-            // Hapus listener saat composable dihancurkan
-            onDispose {
-                userRef.removeEventListener(listener)
-            }
+            onDispose { userRef.removeEventListener(listener) }
         } else {
             navController.navigate("Login")
         }
-
-        onDispose { } // Dibutuhkan oleh DisposableEffect meskipun tidak ada tambahan logika
+        onDispose { }
     }
+
+    val masjid by masjidViewModel.masjid
 
     Scaffold(
         bottomBar = { Footer(navController = navController) }
@@ -370,7 +362,7 @@ fun HomepageScreen(navController: NavController) {
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "MASJID RADEN PATAH",
+                        text = masjid.name,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -379,89 +371,165 @@ fun HomepageScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(40.dp))
 
                     Text(
-                        text = "Jl. Kampus Universitas Brawijaya, Ketawanggede",
+                        text = masjid.alamat,
                         fontSize = 14.sp
                     )
                 }
 
                 // Tabs menggunakan LazyRow
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
-                ) {
-                    items(4) { index ->
-                        val tabName = when (index) {
-                            0 -> "Keuangan"
-                            1 -> "Takmir"
-                            2 -> "Inventaris"
-                            else -> "Jadwal Petugas"
+                if(userStatus == "operator"){
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterHorizontally
+                        )
+                    ) {
+                        items(4) { index ->
+                            val tabName = when (index) {
+                                0 -> "Takmir"
+                                1 -> "Inventaris"
+                                2 -> "Jadwal Petugas"
+                                else -> "kelola jemaah"
+                            }
+                            val destination = when (index) {
+                                0 -> "tambahBarang/$masjidId"   // Anda bisa menentukan rute untuk Takmir
+                                1 -> "inventaris/${false}/$masjidId" // Rute untuk Inventaris
+                                2 -> "jadwal_petugas" // Anda bisa menentukan rute untuk Jadwal Petugas
+                                else -> "manageJemaah"
+                            }
+                            Button(
+                                onClick = { navController.navigate(destination) },
+                                modifier = Modifier
+                                    .size(80.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                            ) {
+                                Text(
+                                    text = tabName,
+                                    fontSize = 12.sp,
+                                    color = Color.Black,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
                         }
-                        val destination = when (index) {
-                            0 -> "keuangan" // Anda bisa menentukan rute untuk Keuangan
-                            1 -> "takmir"   // Anda bisa menentukan rute untuk Takmir
-                            2 -> "inventaris" // Rute untuk Inventaris
-                            else -> "jadwal_petugas" // Anda bisa menentukan rute untuk Jadwal Petugas
-                        }
-                        Button(
-                            onClick = { navController.navigate(destination) },
-                            modifier = Modifier
-                                .size(80.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
-                        ) {
-                            Text(
-                                text = tabName,
-                                fontSize = 12.sp,
-                                color = Color.Black,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
+                    }
+                }else {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterHorizontally
+                        )
+                    ) {
+                        items(3) { index ->
+                            val tabName = when (index) {
+                                0 -> "Takmir"
+                                1 -> "Inventaris"
+                                else -> "Jadwal Petugas"
+                            }
+                            val destination = when (index) {
+                                0 -> "takmir"   // Anda bisa menentukan rute untuk Takmir
+                                1 -> "inventaris" // Rute untuk Inventaris
+                                else -> "jadwal_petugas" // Anda bisa menentukan rute untuk Jadwal Petugas
+                            }
+                            Button(
+                                onClick = { navController.navigate(destination) },
+                                modifier = Modifier
+                                    .size(80.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                            ) {
+                                Text(
+                                    text = tabName,
+                                    fontSize = 12.sp,
+                                    color = Color.Black,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }
 
 
-                // Alur Peminjaman Barang
-                Text(
-                    text = "Alur Peminjaman Barang",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.LightGray, RoundedCornerShape(8.dp))
-                        .padding(16.dp)
-                ) {
-                    Column {
-                        Text(text = "Tata cara peminjaman barang :", fontSize = 14.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "1. Cek ketersediaan barang", fontSize = 14.sp)
-                        Text(text = "2. Pilih barang beserta jumlahnya", fontSize = 14.sp)
-                        Text(text = "3. Ajukan peminjaman disetujui takmir", fontSize = 14.sp)
-                        Text(text = "4. Tunggu pengajuan disetujui", fontSize = 14.sp)
 
-                        Spacer(modifier = Modifier.height(150.dp))
-                        Button(
-                            onClick = {navController.navigate("listBarangPinjam")},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            shape = RoundedCornerShape(25.dp)
-                        ) {
-                            Text(text = "Ajukan Peminjaman", fontSize = 16.sp)
+                    // Alur Peminjaman Barang
+                    Text(
+                        text = "Alur Peminjaman Barang",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.LightGray, RoundedCornerShape(8.dp))
+                            .padding(16.dp)
+                    ) {
+                        Column {
+                            Text(text = "Tata cara peminjaman barang :", fontSize = 14.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "1. Cek ketersediaan barang", fontSize = 14.sp)
+                            Text(text = "2. Pilih barang beserta jumlahnya", fontSize = 14.sp)
+                            Text(text = "3. Ajukan peminjaman disetujui takmir", fontSize = 14.sp)
+                            Text(text = "4. Tunggu pengajuan disetujui", fontSize = 14.sp)
+
+                            Spacer(modifier = Modifier.height(150.dp))
+                            if (userStatus == "jemaah") {
+                                Button(
+                                    onClick = { navController.navigate("inventaris/${true}/$masjidId") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    shape = RoundedCornerShape(25.dp)
+                                ) {
+                                    Text(text = "Ajukan Peminjaman", fontSize = 16.sp)
+                                }
+                            }
+
+                            else if(userStatus == "operator"){
+                                Button(
+                                    onClick = { navController.navigate("inventaris/${true}/$masjidId") }, //belum selesai, nanti ada khusus operator
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    shape = RoundedCornerShape(25.dp)
+                                ) {
+                                    Text(text = "Ajukan Peminjaman", fontSize = 16.sp)
+                                }
+                            }
+                            else{
+
+                                Text(text = "Anda bukan jemaah masjid ini, silahkan ajukan menjadi jemaah jika ingin meminjam barang", fontSize = 14.sp)
+                                Button(
+                                    onClick = { navController.navigate("applyJemaah/$masjidId") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    shape = RoundedCornerShape(25.dp)
+                                ) {
+                                    Text(text = "Ajukan jadi Jemaah", fontSize = 16.sp)
+                                }
+                            }
                         }
+
                     }
-                }
             }
         }
     }
 }
 
-
-
-@Preview(showBackground = true)
 @Composable
-fun HomepageScreenPreview(navController: NavHostController = rememberNavController()) {
-    HomepageScreen(navController = navController)
+fun checkRole(userId : String){
+    val database = FirebaseDatabase.getInstance().getReference("role")
+
+
 }
+
+
+
+//@Preview(showBackground = true)
+//@Composable
+//fun HomepageScreenPreview(navController: NavHostController = rememberNavController()) {
+//    HomepageScreen(navController = navController)
+//}

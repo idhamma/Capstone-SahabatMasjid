@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +37,7 @@ import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
 import com.sepertigamalamdev.sahabatmasjid.management.Barang
 @Composable
 fun DetailBarangScreen(navController: NavController, itemId: String) {
+
     val context = LocalContext.current
     val database = FirebaseDatabase.getInstance().getReference("barang")
     var barang by remember { mutableStateOf<Barang?>(null) }
@@ -97,35 +99,48 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
                 // Show data only after it is fetched
                 DetailBarang(item)
 
-                if (item.availability == true) {
+                if (item.availability == true ) {
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    androidx.compose.material3.Text(
-                        text = "Ingin pinjam barang ini?",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    androidx.compose.material3.Text(
-                        text = "Silahkan klik tombol dibawah ini",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
+                    if(item.stock > 0){
+                        androidx.compose.material3.Text(
+                            text = "Ingin pinjam barang ini?",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        androidx.compose.material3.Text(
+                            text = "Silahkan klik tombol dibawah ini",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+
+                        Button(
+                            onClick = { navController.navigate("pengajuanPeminjaman/${itemId}") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            shape = RoundedCornerShape(25.dp)
+                        ) {
+                            Text(text = "Ajukan Peminjaman",
+                                fontSize = 16.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }else{
+                        androidx.compose.material3.Text(
+                            text = "Saat ini seluruh barang sedang dipinjam " +
+                                    "\nSilahkan cek kembali nanti",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontStyle = FontStyle.Italic
+                        )
+                    }
+
 
 //                    Spacer(modifier = Modifier.height(16.dp))
 
-                    Button(
-                        onClick = { navController.navigate("pengajuanPeminjaman/${itemId}") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(25.dp)
-                    ) {
-                        Text(text = "Ajukan Peminjaman",
-                            fontSize = 16.sp,
-                            color = Color.White,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+
                 }
             } ?: run {
                 Text("Memuat data barang... ", modifier = Modifier.padding(top = 16.dp))

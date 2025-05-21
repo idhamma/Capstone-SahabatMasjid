@@ -2,6 +2,7 @@ package com.sepertigamalamdev.sahabatmasjid.peminjaman
 
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -176,7 +178,8 @@ fun BarangCardPeminjaman(
     barang: Barang,
     navController: NavController
 ) {
-    val id = peminjaman.id
+    var id = peminjaman.id
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -184,7 +187,7 @@ fun BarangCardPeminjaman(
             .padding(vertical = 8.dp)
             .clickable {
                 if (!id.isNullOrBlank()) {
-                    navController.navigate("detailPeminjaman/${peminjaman.id}")
+                    navController.navigate("detailPeminjaman/$id")
                 } else {
                     Log.e("NAVIGATION", "Barang ID is null or blank")
                     navController.navigate("homepage")
@@ -231,6 +234,11 @@ fun BarangCardPeminjaman(
                     fontWeight = FontWeight.Light
                 )
                 Text(
+                    text = "peminjaman id: ${peminjaman.id}",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Light
+                )
+                Text(
                     text = "Status: ${peminjaman.status}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -250,7 +258,7 @@ fun BarangCardPeminjaman(
                 modifier = Modifier
                     .clickable {
                         if (!id.isNullOrBlank()) {
-                            navController.navigate("detailBarang/${peminjaman.barangid}")
+                            navController.navigate("detailPeminjaman/$id")
                         } else {
                             navController.navigate("homepage")
                         }

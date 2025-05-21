@@ -45,7 +45,7 @@ fun Footer(navController: NavController){
                 .background(Color(0xFF1A3C34))
                 .padding(4.dp)
                 .clickable{
-                    navController.navigate("homepage")
+                    navController.navigate("landing")
                 }
         )
 
