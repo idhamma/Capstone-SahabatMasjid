@@ -1,7 +1,13 @@
 package com.sepertigamalamdev.sahabatmasjid.peminjaman
 
+import android.net.Uri
+import android.widget.Toast
+import coil.compose.SubcomposeAsyncImage
 
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +55,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 
 fun formatMillisToDateTimeString(
     millis: Long,
@@ -66,21 +74,24 @@ fun formatMillisToDateTimeString(
     }
 }
 
+// Di file yang sama dengan DetailBorrowScreen atau file terpisah untuk konten UI
+
 @Composable
 fun BorrowDetailContent(
     navController: NavController,
-    peminjaman: Peminjaman,
+    peminjaman: Peminjaman, // Dijamin non-null oleh pemanggil
     barang: Barang?,
-    isBarangLoadingFailed: Boolean // true jika barangID ada, tapi barang gagal dimuat/tidak ditemukan
+    isBarangLoadingFailed: Boolean,
+    onUnggahBuktiAmbilClicked: () -> Unit,    // Lambda baru
+    onKembalikanBarangClicked: () -> Unit     // Lambda baru
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(16.dp)
-            .verticalScroll(rememberScrollState()) // Tambahkan scroll jika konten panjang
+            .verticalScroll(rememberScrollState())
     ) {
-        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -178,7 +189,7 @@ fun BorrowDetailContent(
                     fontSize = 14.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(vertical=8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 )
             }
         }
@@ -193,37 +204,126 @@ fun BorrowDetailContent(
             disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        OutlinedTextField(value = peminjaman.namaPeminjam, onValueChange = {}, label = { Text("Nama Peminjam") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), enabled = false, colors = textFieldColors)
-        OutlinedTextField(value = peminjaman.phoneNumberPeminjam, onValueChange = {}, label = { Text("Nomor Telepon") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), enabled = false, colors = textFieldColors)
-        OutlinedTextField(value = peminjaman.jumlah.toString(), onValueChange = {}, label = { Text("Jumlah Barang Dipinjam") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), enabled = false, colors = textFieldColors)
+        OutlinedTextField(
+            value = peminjaman.namaPeminjam,
+            onValueChange = {},
+            label = { Text("Nama Peminjam") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            enabled = false,
+            colors = textFieldColors
+        )
+        OutlinedTextField(
+            value = peminjaman.phoneNumberPeminjam,
+            onValueChange = {},
+            label = { Text("Nomor Telepon") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            enabled = false,
+            colors = textFieldColors
+        )
+        OutlinedTextField(
+            value = peminjaman.jumlah.toString(),
+            onValueChange = {},
+            label = { Text("Jumlah Barang Dipinjam") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            enabled = false,
+            colors = textFieldColors
+        )
 
         // Untuk tanggalPinjam dan tanggalPengembalian, jika mereka adalah Long timestamp yang perlu diformat:
         // OutlinedTextField(value = formatMillisToDateTimeString(peminjaman.tanggalPinjam), ...)
         // Jika sudah String yang benar:
-        OutlinedTextField(value = peminjaman.tanggalPinjam, onValueChange = {}, label = { Text("Tanggal Peminjaman") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), enabled = false, colors = textFieldColors)
-        OutlinedTextField(value = peminjaman.tanggalPengembalian, onValueChange = {}, label = { Text("Tanggal Pengembalian") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), enabled = false, colors = textFieldColors)
+        OutlinedTextField(
+            value = peminjaman.tanggalPinjam,
+            onValueChange = {},
+            label = { Text("Tanggal Peminjaman") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            enabled = false,
+            colors = textFieldColors
+        )
+        OutlinedTextField(
+            value = peminjaman.tanggalPengembalian,
+            onValueChange = {},
+            label = { Text("Tanggal Pengembalian") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            enabled = false,
+            colors = textFieldColors
+        )
 
-        if(peminjaman.status == "disetujui"){
-            Spacer(modifier = Modifier.weight(1f))
 
-            // Tombol Ajukan Peminjaman
-            Button(
-                onClick = {}
-                ,
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34A853))
-            ) {
-                Text(text = "Ajukan Pengembalian", fontSize = 16.sp, color = Color.White)
-            }
+        // Tampilkan gambar bukti jika sudah ada (sama seperti sebelumnya)
+        if (peminjaman.imageUrlBuktiPinjam.isNotBlank()) {
+            Text(
+                "Bukti Pengambilan:",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            AsyncImage(
+                model = peminjaman.imageUrlBuktiPinjam,
+                contentDescription = "Bukti Pengambilan",
+                modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(8.dp))
+            )
+        }
+        if (peminjaman.imageUrlBuktiKembali.isNotBlank()) {
+            Text(
+                "Bukti Pengembalian:",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            AsyncImage(
+                model = peminjaman.imageUrlBuktiKembali,
+                contentDescription = "Bukti Pengembalian",
+                modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(8.dp))
+            )
         }
 
+        // Tombol Aksi berdasarkan status
+        when (peminjaman.status.lowercase(Locale.getDefault())) { // Gunakan lowercase untuk perbandingan status yang lebih aman
+            "disetujui" -> {
+                if (peminjaman.imageUrlBuktiPinjam.isBlank()) {
+                    Button(
+                        onClick = onUnggahBuktiAmbilClicked, // <-- Panggil lambda
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                    ) { androidx.compose.material3.Text("Unggah Bukti Pengambilan Barang") } // Gunakan Text dari M3
+                } else {
+                    androidx.compose.material3.Text( // Gunakan Text dari M3
+                        "Barang sudah diambil atau menunggu konfirmasi status berikutnya.",
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
+            }
 
+            "dipinjam" -> {
+                Button(
+                    onClick = onKembalikanBarangClicked, // <-- Panggil lambda
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                ) { androidx.compose.material3.Text("Saya Ingin Kembalikan Barang (Unggah Bukti)") } // Gunakan Text dari M3
+            }
+
+            "proses_pengembalian" -> {
+                androidx.compose.material3.Text(
+                    "Pengembalian Anda sedang diproses oleh operator.",
+                    color = Color.Blue,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+
+            "dikembalikan" -> {
+                androidx.compose.material3.Text(
+                    "Barang sudah berhasil dikembalikan.",
+                    color = Color.Green,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+            // Tambahkan case untuk status lain jika perlu
+        }
+
+        // Tombol "Ajukan Pengembalian" Anda yang lama jika masih relevan
+        // if (peminjaman.status == "disetujui") { ... } // Ini mungkin duplikat dengan tombol di atas
     }
 }
+
+
 
 @Composable
 fun DetailBorrowScreen(
@@ -234,31 +334,110 @@ fun DetailBorrowScreen(
 ) {
     val peminjamanFromVm = peminjamanViewModel.peminjaman.value
     val barangFromVm = barangViewModel.barang.value
+    val context = LocalContext.current
 
-    // State untuk melacak status loading data
     var isPeminjamanLoading by remember { mutableStateOf(true) }
-    var isBarangLoading by remember { mutableStateOf(false) } // Awalnya false, jadi true saat barangid ada
+    var isBarangLoading by remember { mutableStateOf(false) }
     var barangLoadFailed by remember { mutableStateOf(false) }
 
+    // --- IMAGE PICKER LAUNCHER didefinisikan di sini ---
+    val pickMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri: Uri? ->
+            if (uri != null && peminjamanFromVm != null) {
+                // Tentukan aksi berdasarkan status peminjaman saat ini
+                when (peminjamanFromVm.status.lowercase(Locale.getDefault())) {
+                    "disetujui" -> {
+                        Log.d("DetailBorrowScreen", "Uploading bukti ambil untuk peminjaman ID: ${peminjamanFromVm.id}")
+                        peminjamanViewModel.uploadBuktiAmbilAndUpdateStatus(
+                            peminjamanId = peminjamanFromVm.id,
+                            imageUri = uri,
+                            context = context
+                        ) { success, resultMsg ->
+                            if (success) {
+                                Toast.makeText(context, "Bukti pengambilan berhasil diunggah.", Toast.LENGTH_LONG).show()
+                                // Data peminjamanFromVm akan otomatis update karena StateFlow di ViewModel
+                                // dan listener (jika ada) atau pemanggilan ulang getPeminjamanById.
+                            } else {
+                                Toast.makeText(context, "Gagal unggah bukti pengambilan: $resultMsg", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                    "dipinjam" -> {
+                        Log.d("DetailBorrowScreen", "Uploading bukti kembali untuk peminjaman ID: ${peminjamanFromVm.id}")
+                        peminjamanViewModel.uploadBuktiKembaliAndUpdateStatus(
+                            peminjamanId = peminjamanFromVm.id,
+                            imageUri = uri,
+                            context = context
+                        ) { success, resultMsg ->
+                            if (success) {
+                                Toast.makeText(context, "Bukti pengembalian berhasil diunggah.", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(context, "Gagal unggah bukti pengembalian: $resultMsg", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                    else -> {
+                        Log.w("DetailBorrowScreen", "Pemilihan gambar dipicu pada status yang tidak terduga: ${peminjamanFromVm.status}")
+                    }
+                }
+            } else {
+                if (uri == null) Log.d("DetailBorrowScreen", "Tidak ada URI gambar yang dipilih.")
+                if (peminjamanFromVm == null) Log.d("DetailBorrowScreen", "Data peminjaman null, tidak bisa upload.")
+            }
+        }
+    )
 
     // Ambil data peminjaman berdasarkan ID
-    LaunchedEffect(borrowId) {
-        isPeminjamanLoading = false
-        barangLoadFailed = false // Reset status kegagalan barang
-        // Modifikasi ViewModel Anda untuk memberi tahu kapan pengambilan data selesai
-        // Ini contoh jika ViewModel memiliki callback atau mengembalikan status
+    LaunchedEffect(borrowId, peminjamanViewModel) { // Tambahkan peminjamanViewModel sebagai key jika getPeminjamanById ada di sana
+        isPeminjamanLoading = true // Set loading true saat mulai fetch
+        barangLoadFailed = false
+        Log.d("DetailBorrowScreen", "Memuat peminjaman untuk ID: $borrowId")
         peminjamanViewModel.getPeminjamanById(borrowId)
-//        if(peminjamanFromVm == null){
-//            isPeminjamanLoading = true
-//        }
+        // Setelah getPeminjamanById selesai, peminjamanFromVm akan terupdate.
+        // Kita bisa memantau peminjamanFromVm untuk tahu kapan loading selesai.
     }
 
-        LaunchedEffect(peminjamanFromVm?.barangid) {
-            peminjamanFromVm?.let {
-            barangViewModel.getBarangById(it.barangid)
-            isBarangLoading = true
+    // Set isPeminjamanLoading menjadi false setelah peminjamanFromVm (dari ViewModel) terisi atau percobaan fetch selesai
+    // Ini lebih baik dilakukan dengan mengobservasi state loading dari ViewModel jika ada.
+    // Untuk saat ini, kita anggap peminjamanFromVm yang berubah menandakan loading peminjaman selesai.
+    LaunchedEffect(peminjamanFromVm) {
+        if (peminjamanFromVm != null || !isPeminjamanLoading /* jika sebelumnya true dan sekarang peminjaman null */ ) {
+            isPeminjamanLoading = false
         }
     }
+
+
+    // Ketika data peminjaman sudah ada, ambil data barang
+    LaunchedEffect(peminjamanFromVm?.barangid, barangViewModel) { // Key diperbarui
+        peminjamanFromVm?.let { pem ->
+            if (pem.barangid.isNotBlank()) {
+                isBarangLoading = true // Set true sebelum fetch
+                barangLoadFailed = false
+                Log.d("DetailBorrowScreen", "Memuat barang untuk ID: ${pem.barangid}")
+                barangViewModel.getBarangById(pem.barangid)
+                // Setelah getBarangById selesai, barangFromVm akan terupdate.
+            } else {
+                isBarangLoading = false // Tidak ada barangid, tidak perlu loading barang
+            }
+        }
+        if (peminjamanFromVm == null) { // Jika peminjaman null, pastikan isBarangLoading juga false
+            isBarangLoading = false
+        }
+    }
+
+    // Set isBarangLoading menjadi false setelah barangFromVm terisi atau barangid tidak ada
+    LaunchedEffect(barangFromVm, peminjamanFromVm?.barangid) {
+        if (peminjamanFromVm?.barangid.isNullOrBlank() || barangFromVm != null || !isBarangLoading /* jika sebelumnya true dan kini barang null */) {
+            isBarangLoading = false
+//            if (peminjamanFromVm.barangid.isNotBlank() && barangFromVm == null) {
+//                // Jika ada barangid tapi barangnya null setelah loading, tandai sebagai gagal
+//                // Ini asumsi sederhana, ViewModel idealnya memberi status gagal load barang
+//                // barangLoadFailed = true; // Hati-hati dengan ini jika barang bisa memang null
+//            }
+        }
+    }
+
 
     Scaffold(
         bottomBar = { Footer(navController = navController) }
@@ -268,13 +447,14 @@ fun DetailBorrowScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (isPeminjamanLoading) {
+            // Tampilkan loader utama jika data peminjaman sedang dimuat atau belum ada sama sekali
+            if (isPeminjamanLoading && peminjamanFromVm == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             } else if (peminjamanFromVm == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Data peminjaman tidak ditemukan.")
+                    androidx.compose.material3.Text("Data peminjaman tidak ditemukan.")
                 }
             } else {
                 // peminjamanFromVm dijamin non-null di sini
@@ -282,8 +462,15 @@ fun DetailBorrowScreen(
                     navController = navController,
                     peminjaman = peminjamanFromVm,
                     barang = barangFromVm,
-                    // Jika barang sedang loading DAN barangid ada, atau jika gagal memuat barang
-                    isBarangLoadingFailed = (peminjamanFromVm.barangid.isNotBlank() && barangFromVm == null && barangLoadFailed)
+                    isBarangLoadingFailed = (peminjamanFromVm.barangid.isNotBlank() && barangFromVm == null && !isBarangLoading /* setelah usaha load barang */),
+                    onUnggahBuktiAmbilClicked = {
+                        Log.d("DetailBorrowScreen", "Tombol Unggah Bukti Ambil diklik.")
+                        pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    },
+                    onKembalikanBarangClicked = {
+                        Log.d("DetailBorrowScreen", "Tombol Kembalikan Barang diklik.")
+                        pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    }
                 )
             }
         }

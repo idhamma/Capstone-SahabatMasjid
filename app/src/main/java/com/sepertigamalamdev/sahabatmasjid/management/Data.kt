@@ -62,4 +62,11 @@ data class Peminjaman(
     var tanggalPengembalian: String = "",
     var timestamp: Long = 0,
     var jumlah: Int = 0,
-    )
+
+    var imageUrlBuktiPinjam: String = "",
+    var timestampBuktiPinjam: Long = 0,
+    var imageUrlBuktiKembali: String = "",
+    var timestampBuktiKembali: Long = 0
+
+
+)

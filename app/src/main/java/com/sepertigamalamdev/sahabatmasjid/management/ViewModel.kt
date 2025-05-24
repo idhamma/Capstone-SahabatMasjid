@@ -694,6 +694,326 @@ class PeminjamanViewModel : ViewModel() {
                     _peminjamanUntukPengelolaan.value = emptyList()
                 }
             })
+
+        // Fungsi untuk mengunggah bukti pengambilan barang
+        fun uploadBuktiAmbilAndUpdateStatus(
+            peminjamanId: String,
+            imageUri: Uri,
+            context: Context,
+            onResult: (success: Boolean, newImageUrlOrError: String?) -> Unit
+        ) {
+            val bucketName = "bukti-peminjaman" // Nama bucket Anda di Supabase
+            val fieldNameToUpdate = "imageUrlBuktiPinjam"
+            val timestampFieldNameToUpdate = "timestampBuktiPinjam"
+            val newStatus = "dipinjam" // Status baru setelah barang diambil
+            val typeForPath = "bukti_ambil"
+
+            uploadBuktiGenericAndUpdateStatus(
+                peminjamanId, imageUri, context, bucketName,
+                fieldNameToUpdate, timestampFieldNameToUpdate,
+                newStatus, typeForPath, onResult
+            )
+        }
+
+
+        // Fungsi generik untuk menangani upload dan update (DRY - Don't Repeat Yourself)
+        fun uploadBuktiGenericAndUpdateStatus(
+            peminjamanId: String,
+            imageUri: Uri,
+            context: Context,
+            bucketName: String,
+            imageUrlField: String,        // Nama field di Firebase untuk URL gambar
+            timestampField: String,       // Nama field di Firebase untuk timestamp upload bukti
+            newStatusAfterUpload: String, // Status Peminjaman baru setelah upload berhasil
+            pathType: String,             // Bagian dari path file di Supabase (misal "bukti_ambil" atau "bukti_kembali")
+            onResult: (success: Boolean, newUrlOrError: String?) -> Unit
+        ) {
+            if (peminjamanId.isBlank()) {
+                onResult(false, "ID Peminjaman tidak valid.")
+                return
+            }
+
+            viewModelScope.launch {
+                try {
+                    val inputStream: InputStream? = context.contentResolver.openInputStream(imageUri)
+                    // --- LOGIKA KOMPRESI DAN SCALING GAMBAR ---
+                    // (Sama seperti yang sudah kita bahas untuk foto profil/barang, maxHeight misal 720 atau 1080)
+                    val compressedImageBytes: ByteArray = withContext(Dispatchers.IO) { // Jalankan di background thread
+                        // 1. Decode InputStream menjadi Bitmap
+                        val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                        inputStream?.close() // Tutup stream setelah selesai
+
+                        if (originalBitmap == null) {
+                            // Tidak bisa return langsung dari withContext ke onResult,
+                            // jadi lempar exception atau kembalikan null/flag error
+                            throw Exception("Gagal men-decode gambar menjadi Bitmap.")
+                        }
+
+                        // 2. (Opsional) Ubah Ukuran (Scaling) Bitmap
+                        // Tentukan ukuran target, misalnya maksimal lebar/tinggi 1080px
+                        val maxWidth = 1080
+                        val maxHeight = 1440
+                        val scaledBitmap = if (originalBitmap.width > maxWidth || originalBitmap.height > maxHeight) {
+                            val ratio: Float = originalBitmap.width.toFloat() / originalBitmap.height.toFloat()
+                            val finalWidth: Int
+                            val finalHeight: Int
+                            if (ratio > 1) { // Landscape
+                                finalWidth = maxWidth
+                                finalHeight = (maxWidth / ratio).toInt()
+                            } else { // Portrait atau Square
+                                finalHeight = maxHeight
+                                finalWidth = (maxHeight * ratio).toInt()
+                            }
+                            Log.d("ImageCompress", "Scaling bitmap from ${originalBitmap.width}x${originalBitmap.height} to ${finalWidth}x${finalHeight}")
+                            Bitmap.createScaledBitmap(originalBitmap, finalWidth, finalHeight, true)
+                        } else {
+                            originalBitmap // Gunakan original jika sudah cukup kecil
+                        }
+
+                        // 3. Kompres Bitmap ke ByteArrayOutputStream
+                        val outputStream = ByteArrayOutputStream()
+                        val quality = 80 // Kualitas JPEG (0-100), 80 biasanya kompromi yang baik
+
+                        // Pilih format kompresi: JPEG atau WEBP
+                        // Untuk WEBP (jika API level mendukung dan Anda inginkan):
+                        // scaledBitmap.compress(Bitmap.CompressFormat.WEBP, quality, outputStream)
+                        // Log.d("ImageCompress", "Compressing to WEBP with quality $quality")
+
+                        // Untuk JPEG:
+                        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+                        Log.d("ImageCompress", "Compressing to JPEG with quality $quality. Original size approx (pre-scale): ${originalBitmap.byteCount}, Scaled size approx: ${scaledBitmap.byteCount}")
+
+                        val byteArray = outputStream.toByteArray()
+                        Log.d("ImageCompress", "Final compressed byte array size: ${byteArray.size / 1024} KB")
+                        byteArray // Kembalikan byte array hasil kompresi
+                    }
+                    // --- SELESAI KOMPRESI ---
+
+                    if (compressedImageBytes.isEmpty()) {
+                        onResult(false, "Gagal mengompres gambar bukti.")
+                        return@launch
+                    }
+
+                    val fileExtension = context.contentResolver.getType(imageUri)?.split('/')?.lastOrNull() ?: "jpg"
+                    val filePath = "bukti_peminjaman/$peminjamanId/${pathType}_${System.currentTimeMillis()}.$fileExtension"
+
+                    Log.d("PeminjamanVM", "Uploading $pathType image: $filePath in bucket $bucketName")
+                    supabase.storage[bucketName].upload(
+                        path = filePath, data = compressedImageBytes, options = { upsert = false } // upsert=false agar setiap bukti unik
+                    )
+                    Log.d("PeminjamanVM", "Upload $pathType image to Supabase successful.")
+
+                    val basePublicUrl = supabase.storage[bucketName].publicUrl(filePath)
+                    val cacheBustedUrl = "${basePublicUrl}?timestamp=${System.currentTimeMillis()}"
+                    Log.d("PeminjamanVM", "$pathType public URL (cache-busted): $cacheBustedUrl")
+
+                    // Update Firebase Realtime Database
+                    val updates = hashMapOf<String, Any>(
+                        imageUrlField to cacheBustedUrl,
+                        timestampField to System.currentTimeMillis(),
+                        "status" to newStatusAfterUpload
+                    )
+
+                    FirebaseDatabase.getInstance().getReference("peminjaman").child(peminjamanId)
+                        .updateChildren(updates).await() // Menggunakan await
+
+                    Log.d("PeminjamanVM", "Data peminjaman $peminjamanId diupdate dengan $pathType URL dan status $newStatusAfterUpload.")
+                    onResult(true, cacheBustedUrl)
+
+                } catch (e: Exception) {
+                    Log.e("PeminjamanVM", "Error during $pathType image upload: ${e.message}", e)
+                    onResult(false, "Gagal memproses gambar bukti $pathType: ${e.message}")
+                }
+            }
+        }
+
+
+        // Fungsi untuk operator menyelesaikan/mengkonfirmasi pengembalian (setelah cek barang & bukti)
+        fun konfirmasiPengembalianSelesai(peminjamanId: String, onResult: (Boolean) -> Unit) {
+            if (peminjamanId.isBlank()) {
+                onResult(false)
+                return
+            }
+            val updates = mapOf(
+                "status" to "dikembalikan",
+                // Anda bisa menambahkan field "dikembalikanPadaTimestamp" atau "diverifikasiOperatorPada"
+                "timestampPengembalianAktual" to System.currentTimeMillis()
+            )
+            FirebaseDatabase.getInstance().getReference("peminjaman").child(peminjamanId)
+                .updateChildren(updates)
+                .addOnSuccessListener { onResult(true) }
+                .addOnFailureListener { onResult(false) }
+        }
+    }
+
+    // Fungsi untuk mengunggah bukti pengambilan barang
+    fun uploadBuktiAmbilAndUpdateStatus(
+        peminjamanId: String,
+        imageUri: Uri,
+        context: Context,
+        onResult: (success: Boolean, newImageUrlOrError: String?) -> Unit
+    ) {
+        val bucketName = "bukti-peminjaman" // Nama bucket Anda di Supabase
+        val fieldNameToUpdate = "imageUrlBuktiPinjam"
+        val timestampFieldNameToUpdate = "timestampBuktiPinjam"
+        val newStatus = "dipinjam" // Status baru setelah barang diambil
+        val typeForPath = "bukti_ambil"
+
+        uploadBuktiGenericAndUpdateStatus(
+            peminjamanId, imageUri, context, bucketName,
+            fieldNameToUpdate, timestampFieldNameToUpdate,
+            newStatus, typeForPath, onResult
+        )
+    }
+
+    // Fungsi untuk mengunggah bukti pengembalian barang
+    fun uploadBuktiKembaliAndUpdateStatus(
+        peminjamanId: String,
+        imageUri: Uri,
+        context: Context,
+        onResult: (success: Boolean, newImageUrlOrError: String?) -> Unit
+    ) {
+        val bucketName = "bukti-peminjaman"
+        val fieldNameToUpdate = "imageUrlBuktiKembali"
+        val timestampFieldNameToUpdate = "timestampBuktiKembali"
+        // Status setelah user upload bukti kembali, sebelum diverifikasi operator
+        val newStatus = "proses_pengembalian"
+        val typeForPath = "bukti_kembali"
+
+        uploadBuktiGenericAndUpdateStatus(
+            peminjamanId, imageUri, context, bucketName,
+            fieldNameToUpdate, timestampFieldNameToUpdate,
+            newStatus, typeForPath, onResult
+        )
+    }
+
+    // Fungsi generik untuk menangani upload dan update (DRY - Don't Repeat Yourself)
+    private fun uploadBuktiGenericAndUpdateStatus(
+        peminjamanId: String,
+        imageUri: Uri,
+        context: Context,
+        bucketName: String,
+        imageUrlField: String,        // Nama field di Firebase untuk URL gambar
+        timestampField: String,       // Nama field di Firebase untuk timestamp upload bukti
+        newStatusAfterUpload: String, // Status Peminjaman baru setelah upload berhasil
+        pathType: String,             // Bagian dari path file di Supabase (misal "bukti_ambil" atau "bukti_kembali")
+        onResult: (success: Boolean, newUrlOrError: String?) -> Unit
+    ) {
+        if (peminjamanId.isBlank()) {
+            onResult(false, "ID Peminjaman tidak valid.")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val inputStream: InputStream? = context.contentResolver.openInputStream(imageUri)
+                // --- LOGIKA KOMPRESI DAN SCALING GAMBAR ---
+                // (Sama seperti yang sudah kita bahas untuk foto profil/barang, maxHeight misal 720 atau 1080)
+                val compressedImageBytes: ByteArray = withContext(Dispatchers.IO) { // Jalankan di background thread
+                    // 1. Decode InputStream menjadi Bitmap
+                    val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream?.close() // Tutup stream setelah selesai
+
+                    if (originalBitmap == null) {
+                        // Tidak bisa return langsung dari withContext ke onResult,
+                        // jadi lempar exception atau kembalikan null/flag error
+                        throw Exception("Gagal men-decode gambar menjadi Bitmap.")
+                    }
+
+                    // 2. (Opsional) Ubah Ukuran (Scaling) Bitmap
+                    // Tentukan ukuran target, misalnya maksimal lebar/tinggi 1080px
+                    val maxWidth = 1080
+                    val maxHeight = 1440
+                    val scaledBitmap = if (originalBitmap.width > maxWidth || originalBitmap.height > maxHeight) {
+                        val ratio: Float = originalBitmap.width.toFloat() / originalBitmap.height.toFloat()
+                        val finalWidth: Int
+                        val finalHeight: Int
+                        if (ratio > 1) { // Landscape
+                            finalWidth = maxWidth
+                            finalHeight = (maxWidth / ratio).toInt()
+                        } else { // Portrait atau Square
+                            finalHeight = maxHeight
+                            finalWidth = (maxHeight * ratio).toInt()
+                        }
+                        Log.d("ImageCompress", "Scaling bitmap from ${originalBitmap.width}x${originalBitmap.height} to ${finalWidth}x${finalHeight}")
+                        Bitmap.createScaledBitmap(originalBitmap, finalWidth, finalHeight, true)
+                    } else {
+                        originalBitmap // Gunakan original jika sudah cukup kecil
+                    }
+
+                    // 3. Kompres Bitmap ke ByteArrayOutputStream
+                    val outputStream = ByteArrayOutputStream()
+                    val quality = 80 // Kualitas JPEG (0-100), 80 biasanya kompromi yang baik
+
+                    // Pilih format kompresi: JPEG atau WEBP
+                    // Untuk WEBP (jika API level mendukung dan Anda inginkan):
+                    // scaledBitmap.compress(Bitmap.CompressFormat.WEBP, quality, outputStream)
+                    // Log.d("ImageCompress", "Compressing to WEBP with quality $quality")
+
+                    // Untuk JPEG:
+                    scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+                    Log.d("ImageCompress", "Compressing to JPEG with quality $quality. Original size approx (pre-scale): ${originalBitmap.byteCount}, Scaled size approx: ${scaledBitmap.byteCount}")
+
+                    val byteArray = outputStream.toByteArray()
+                    Log.d("ImageCompress", "Final compressed byte array size: ${byteArray.size / 1024} KB")
+                    byteArray // Kembalikan byte array hasil kompresi
+                }
+                // --- SELESAI KOMPRESI ---
+
+                if (compressedImageBytes.isEmpty()) {
+                    onResult(false, "Gagal mengompres gambar bukti.")
+                    return@launch
+                }
+
+                val fileExtension = context.contentResolver.getType(imageUri)?.split('/')?.lastOrNull() ?: "jpg"
+                val filePath = "bukti_peminjaman/$peminjamanId/${pathType}_${System.currentTimeMillis()}.$fileExtension"
+
+                Log.d("PeminjamanVM", "Uploading $pathType image: $filePath in bucket $bucketName")
+                supabase.storage[bucketName].upload(
+                    path = filePath, data = compressedImageBytes, options = { upsert = false } // upsert=false agar setiap bukti unik
+                )
+                Log.d("PeminjamanVM", "Upload $pathType image to Supabase successful.")
+
+                val basePublicUrl = supabase.storage[bucketName].publicUrl(filePath)
+                val cacheBustedUrl = "${basePublicUrl}?timestamp=${System.currentTimeMillis()}"
+                Log.d("PeminjamanVM", "$pathType public URL (cache-busted): $cacheBustedUrl")
+
+                // Update Firebase Realtime Database
+                val updates = hashMapOf<String, Any>(
+                    imageUrlField to cacheBustedUrl,
+                    timestampField to System.currentTimeMillis(),
+                    "status" to newStatusAfterUpload
+                )
+
+                FirebaseDatabase.getInstance().getReference("peminjaman").child(peminjamanId)
+                    .updateChildren(updates).await() // Menggunakan await
+
+                Log.d("PeminjamanVM", "Data peminjaman $peminjamanId diupdate dengan $pathType URL dan status $newStatusAfterUpload.")
+                onResult(true, cacheBustedUrl)
+
+            } catch (e: Exception) {
+                Log.e("PeminjamanVM", "Error during $pathType image upload: ${e.message}", e)
+                onResult(false, "Gagal memproses gambar bukti $pathType: ${e.message}")
+            }
+        }
+    }
+
+
+    // Fungsi untuk operator menyelesaikan/mengkonfirmasi pengembalian (setelah cek barang & bukti)
+    fun konfirmasiPengembalianSelesai(peminjamanId: String, onResult: (Boolean) -> Unit) {
+        if (peminjamanId.isBlank()) {
+            onResult(false)
+            return
+        }
+        val updates = mapOf(
+            "status" to "dikembalikan",
+            // Anda bisa menambahkan field "dikembalikanPadaTimestamp" atau "diverifikasiOperatorPada"
+            "timestampPengembalianAktual" to System.currentTimeMillis()
+        )
+        FirebaseDatabase.getInstance().getReference("peminjaman").child(peminjamanId)
+            .updateChildren(updates)
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
     }
 
 }
@@ -739,42 +1059,54 @@ class BarangViewModel : ViewModel() {
                     // --- LOGIKA KOMPRESI DAN SCALING GAMBAR (maxHeight = 1440px) ---
                     // (Sama seperti yang sudah kita bahas: decodeStream, createScaledBitmap, compress)
                     // Ganti bagian ini dengan implementasi kompresi lengkap Anda
-                    val compressedImageBytes: ByteArray = withContext(Dispatchers.IO) {
+                    val compressedImageBytes: ByteArray = withContext(Dispatchers.IO) { // Jalankan di background thread
+                        // 1. Decode InputStream menjadi Bitmap
                         val originalBitmap = BitmapFactory.decodeStream(inputStream)
-                        inputStream?.close()
-                        if (originalBitmap == null) throw Exception("Gagal decode bitmap.")
+                        inputStream?.close() // Tutup stream setelah selesai
 
+                        if (originalBitmap == null) {
+                            // Tidak bisa return langsung dari withContext ke onResult,
+                            // jadi lempar exception atau kembalikan null/flag error
+                            throw Exception("Gagal men-decode gambar menjadi Bitmap.")
+                        }
+
+                        // 2. (Opsional) Ubah Ukuran (Scaling) Bitmap
+                        // Tentukan ukuran target, misalnya maksimal lebar/tinggi 1080px
                         val maxWidth = 1440
-                        val maxHeight = 1440 // Sesuai permintaan Anda
-                        val scaledBitmap =
-                            if (originalBitmap.width > maxWidth || originalBitmap.height > maxHeight) {
-                                val ratio: Float =
-                                    originalBitmap.width.toFloat() / originalBitmap.height.toFloat()
-                                val finalWidth: Int
-                                val finalHeight: Int
-                                if (originalBitmap.width > originalBitmap.height) {
-                                    finalWidth = maxWidth
-                                    finalHeight = (maxWidth / ratio).toInt().coerceAtLeast(1)
-                                } else {
-                                    finalHeight = maxHeight
-                                    finalWidth = (maxHeight * ratio).toInt().coerceAtLeast(1)
-                                }
-                                Bitmap.createScaledBitmap(
-                                    originalBitmap,
-                                    finalWidth,
-                                    finalHeight,
-                                    true
-                                )
-                            } else {
-                                originalBitmap
+                        val maxHeight = 1440
+                        val scaledBitmap = if (originalBitmap.width > maxWidth || originalBitmap.height > maxHeight) {
+                            val ratio: Float = originalBitmap.width.toFloat() / originalBitmap.height.toFloat()
+                            val finalWidth: Int
+                            val finalHeight: Int
+                            if (ratio > 1) { // Landscape
+                                finalWidth = maxWidth
+                                finalHeight = (maxWidth / ratio).toInt()
+                            } else { // Portrait atau Square
+                                finalHeight = maxHeight
+                                finalWidth = (maxHeight * ratio).toInt()
                             }
+                            Log.d("ImageCompress", "Scaling bitmap from ${originalBitmap.width}x${originalBitmap.height} to ${finalWidth}x${finalHeight}")
+                            Bitmap.createScaledBitmap(originalBitmap, finalWidth, finalHeight, true)
+                        } else {
+                            originalBitmap // Gunakan original jika sudah cukup kecil
+                        }
+
+                        // 3. Kompres Bitmap ke ByteArrayOutputStream
                         val outputStream = ByteArrayOutputStream()
-                        scaledBitmap.compress(
-                            Bitmap.CompressFormat.JPEG,
-                            80,
-                            outputStream
-                        ) // Kualitas 80
-                        outputStream.toByteArray()
+                        val quality = 80 // Kualitas JPEG (0-100), 80 biasanya kompromi yang baik
+
+                        // Pilih format kompresi: JPEG atau WEBP
+                        // Untuk WEBP (jika API level mendukung dan Anda inginkan):
+                        // scaledBitmap.compress(Bitmap.CompressFormat.WEBP, quality, outputStream)
+                        // Log.d("ImageCompress", "Compressing to WEBP with quality $quality")
+
+                        // Untuk JPEG:
+                        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+                        Log.d("ImageCompress", "Compressing to JPEG with quality $quality. Original size approx (pre-scale): ${originalBitmap.byteCount}, Scaled size approx: ${scaledBitmap.byteCount}")
+
+                        val byteArray = outputStream.toByteArray()
+                        Log.d("ImageCompress", "Final compressed byte array size: ${byteArray.size / 1024} KB")
+                        byteArray // Kembalikan byte array hasil kompresi
                     }
                     // --- SELESAI KOMPRESI ---
 

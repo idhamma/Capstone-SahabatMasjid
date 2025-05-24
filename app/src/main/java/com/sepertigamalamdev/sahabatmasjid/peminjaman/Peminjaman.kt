@@ -7,12 +7,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -347,47 +349,94 @@ fun PeminjamanScreen(
 
 //untuk operator
 
+
+@OptIn(ExperimentalMaterial3Api::class) // Diperlukan untuk FilterChip
 @Composable
 fun OperatorMasjidPeminjamanList(
     navController: NavController,
     masjidId: String,
     masjidName: String,
-    viewModel: PeminjamanViewModel = viewModel() // Gunakan instance ViewModel yang sama jika logis
+    viewModel: PeminjamanViewModel = viewModel()
 ) {
-    // Ambil daftar peminjaman yang perlu dikelola dari ViewModel
     val peminjamanUntukPengelolaanList by viewModel.peminjamanUntukPengelolaan.collectAsState()
 
-    // Panggil fungsi untuk memuat data saat masjidId berubah
-    LaunchedEffect(masjidId) {
-        viewModel.loadPeminjamanUntukPengelolaan(masjidId, statusFilter = "diajukan") // Atau status lain yang relevan
+    // 1. State untuk filter status yang dipilih, defaultnya "diajukan"
+    var selectedStatusFilter by remember { mutableStateOf("diajukan") }
+
+    // 2. Daftar status yang bisa dipilih oleh operator (label dan nilai internal)
+    val filterableStatuses = listOf(
+        "Diajukan" to "diajukan",
+        "Disetujui" to "disetujui",
+        "Dipinjam" to "dipinjam",
+        "Proses Kembali" to "proses_pengembalian",
+        "Dikembalikan" to "dikembalikan",
+        "Ditolak" to "ditolak"
+    )
+
+    // 4. Panggil fungsi untuk memuat data setiap kali masjidId atau selectedStatusFilter berubah
+    LaunchedEffect(masjidId, selectedStatusFilter) {
+        viewModel.loadPeminjamanUntukPengelolaan(masjidId, statusFilter = selectedStatusFilter)
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp) // Padding konsisten
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
     ) {
         Text(
             "Kelola Peminjaman: $masjidName",
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 4.dp)
+            modifier = Modifier.padding(bottom = 8.dp) // Sedikit padding bawah
         )
+
+        // 3. UI untuk Pemilihan Status menggunakan FilterChip dalam LazyRow
         Text(
-            "Status Diajukan", // Anda bisa membuat ini dinamis jika ada filter status lain
+            "Filter berdasarkan Status:",
             style = MaterialTheme.typography.titleSmall,
-            color = Color.Gray,
+            // color = Color.Gray, // Bisa juga gunakan warna dari MaterialTheme
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 16.dp) // Padding bawah untuk row chip
+        ) {
+            items(filterableStatuses) { (label, statusValue) ->
+                FilterChip(
+                    selected = selectedStatusFilter == statusValue,
+                    onClick = { selectedStatusFilter = statusValue },
+                    label = { Text(label) },
+                    leadingIcon = if (selectedStatusFilter == statusValue) {
+                        { Icon(imageVector = Icons.Filled.Done, contentDescription = "Status Terpilih", modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                    } else {
+                        null
+                    }
+                )
+            }
+        }
+
+        // Tampilkan status yang sedang difilter
+        val currentFilterLabel = filterableStatuses.find { it.second == selectedStatusFilter }?.first ?: selectedStatusFilter.replaceFirstChar { it.titlecase(Locale.getDefault()) }
+        Text(
+            "Menampilkan: Status \"$currentFilterLabel\"",
+            style = MaterialTheme.typography.labelLarge, // Atau bodyMedium
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+
         if (peminjamanUntukPengelolaanList.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Tidak ada peminjaman yang perlu dikelola untuk masjid ini saat ini.")
+            Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) { // weight(1f) agar mengisi sisa ruang
+                Text("Tidak ada peminjaman dengan status \"$currentFilterLabel\" untuk masjid ini.")
             }
         } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(
+                modifier = Modifier.weight(1f), // weight(1f) agar mengisi sisa ruang
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(
                     items = peminjamanUntukPengelolaanList,
-                    key = { (peminjaman, _) -> peminjaman.id } // Key untuk performa
+                    key = { (peminjaman, _) -> "${peminjaman.id}_${peminjaman.status}" } // Key lebih unik jika status bisa berubah
                 ) { (peminjaman, barang) ->
                     OperatorPeminjamanItemCard(
                         peminjaman = peminjaman,
