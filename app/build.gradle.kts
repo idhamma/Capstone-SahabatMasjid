@@ -5,6 +5,7 @@ plugins {
     id("com.google.devtools.ksp")
 //    alias(libs.plugins.google.gms.google.services)
     id("com.google.gms.google-services")
+    kotlin("plugin.serialization") version "2.0.0"
 
 
 }
@@ -69,7 +70,17 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 
+    // Ktor dependencies
+    val ktor_version = "3.1.3" // Or a higher 3.x version compatible with Supabase 3.1.4
+    implementation("io.ktor:ktor-client-android:$ktor_version")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version") // Often needed
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
 
+
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.0.0")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:storage-kt")
 
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.tooling)

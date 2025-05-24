@@ -15,7 +15,6 @@ data class Barang(
 )
 
 
-
 data class Masjid(
     var id: String = "",
     var name: String = "",
@@ -62,11 +61,5 @@ data class Peminjaman(
     var tanggalPinjam: String = "",
     var tanggalPengembalian: String = "",
     var timestamp: Long = 0,
-
+    var jumlah: Int = 0,
     )
-
-data class Jemaah(
-    val name: String,
-    val phone: String,
-    val email: String
-)

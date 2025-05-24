@@ -425,12 +425,12 @@ fun HomepageScreen(navController: NavController,masjidId : String) {
                         items(3) { index ->
                             val tabName = when (index) {
                                 0 -> "Takmir"
-                                1 -> "Inventaris"
+                                1 -> "inventaris"
                                 else -> "Jadwal Petugas"
                             }
                             val destination = when (index) {
                                 0 -> "takmir"   // Anda bisa menentukan rute untuk Takmir
-                                1 -> "inventaris" // Rute untuk Inventaris
+                                1 -> "inventaris/${false}/$masjidId" // Rute untuk Inventaris
                                 else -> "jadwal_petugas" // Anda bisa menentukan rute untuk Jadwal Petugas
                             }
                             Button(

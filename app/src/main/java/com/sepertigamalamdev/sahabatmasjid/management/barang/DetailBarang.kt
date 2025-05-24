@@ -26,7 +26,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
 
@@ -36,13 +38,27 @@ import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
 
 
 import com.sepertigamalamdev.sahabatmasjid.management.Barang
+import com.sepertigamalamdev.sahabatmasjid.management.UserViewModel
+
 @Composable
-fun DetailBarangScreen(navController: NavController, itemId: String) {
+fun DetailBarangScreen(navController: NavController,masjidId: String, itemId: String) {
 
     val context = LocalContext.current
     val database = FirebaseDatabase.getInstance().getReference("barang")
     var barang by remember { mutableStateOf<Barang?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val uid = currentUser?.uid
+
+    val viewModel: UserViewModel = viewModel()
+    var userStatus by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.getUserRole(uid, masjidId) { status ->
+            userStatus = status
+        }
+    }
 
     // Ambil data berdasarkan ID
     LaunchedEffect(itemId) {
@@ -149,20 +165,22 @@ fun DetailBarangScreen(navController: NavController, itemId: String) {
             }
         }
             barang?.let { item ->
-                FloatingActionButton(
-                    onClick = { navController.navigate("editBarang/${item.id}") },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp),
-                    containerColor = Color(0xFF34A853),
-                    contentColor = Color.White,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Create, //sementara
-                        contentDescription = "Add Item"
-                    )
-                }
+                if (userStatus == "operator"){
+                    FloatingActionButton(
+                        onClick = { navController.navigate("editBarang/${item.id}") },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp),
+                        containerColor = Color(0xFF34A853),
+                        contentColor = Color.White,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Create, //sementara
+                            contentDescription = "Add Item"
+                        )
+                    }
+            }
             }
         }
     }

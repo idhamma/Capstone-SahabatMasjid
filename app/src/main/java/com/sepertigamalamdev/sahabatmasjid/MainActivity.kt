@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,10 +38,22 @@ import com.sepertigamalamdev.sahabatmasjid.management.barang.AddInventoryScreen
 import com.sepertigamalamdev.sahabatmasjid.management.ConfirmDataScreen
 import com.sepertigamalamdev.sahabatmasjid.management.DetailManageRoleScreen
 import com.sepertigamalamdev.sahabatmasjid.management.ManageRequestScreen
+import com.sepertigamalamdev.sahabatmasjid.management.OperatorBorrowDetailScreen
 import com.sepertigamalamdev.sahabatmasjid.management.barang.BarangEditSection
 import com.sepertigamalamdev.sahabatmasjid.peminjaman.DetailBorrowScreen
 import com.sepertigamalamdev.sahabatmasjid.profile.ProfileUser
 import com.sepertigamalamdev.sahabatmasjid.succesScreen.SuccessScreen
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.storage.Storage
+
+val supabase = createSupabaseClient(
+    supabaseUrl = "https://dkmnqalzthzlkwjjfhmk.supabase.co",
+    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbW5xYWx6dGh6bGt3ampmaG1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5ODUxMjAsImV4cCI6MjA2MzU2MTEyMH0.Q9lxpX5mYsMxjhvRq2u43F_ZxGAcjWVygUHsNMn5GVc"
+) {
+    install(Postgrest)
+    install(Storage)
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,10 +118,12 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable("detailBarang/{id}") { backStackEntry ->
+                        composable("detailBarang/{masjidid}/{id}") { backStackEntry ->
+                            val masjidId = backStackEntry.arguments?.getString("masjidid") ?: ""
                             val itemId = backStackEntry.arguments?.getString("id") ?: ""
-                            DetailBarangScreen(navController = navController, itemId = itemId)
+                            DetailBarangScreen(navController = navController, masjidId = masjidId, itemId = itemId)
                         }
+
                         composable("editBarang/{id}") { backStackEntry ->
                             val itemId = backStackEntry.arguments?.getString("id") ?: ""
                             BarangEditSection(navController = navController, itemId = itemId)
@@ -144,6 +159,29 @@ class MainActivity : ComponentActivity() {
                         composable("manageDetailJemaah/{id}"){backStackEntry ->
                             val itemId = backStackEntry.arguments?.getString("id") ?: ""
                             DetailManageRoleScreen(navController = navController,itemId = itemId)
+                        }
+
+                        composable(
+                            route = "operator_detail_peminjaman/{borrowId}", // Nama route bisa disesuaikan
+                            arguments = listOf(
+                                navArgument("borrowId") {
+                                    type = NavType.StringType // Tipe argumen adalah String
+                                    // nullable = false // Tidak perlu jika bagian dari path
+                                }
+                            )
+                        ) { backStackEntry ->
+                            val borrowId = backStackEntry.arguments?.getString("borrowId")
+                            if (borrowId != null) {
+                                OperatorBorrowDetailScreen(
+                                    navController = navController,
+                                    borrowId = borrowId
+                                    // ViewModel akan dibuat secara default di dalam OperatorBorrowDetailScreen
+                                )
+                            } else {
+                                // Handle kasus jika borrowId null, meskipun seharusnya tidak terjadi
+                                // jika navigasi dilakukan dengan benar.
+                                Text("Error: ID Peminjaman untuk Operator tidak valid.")
+                            }
                         }
 
                     }

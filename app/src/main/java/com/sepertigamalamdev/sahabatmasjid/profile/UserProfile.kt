@@ -1,206 +1,23 @@
 package com.sepertigamalamdev.sahabatmasjid.profile
 
-//import androidx.compose.foundation.background
-//import androidx.compose.foundation.clickable
-//import androidx.compose.foundation.layout.*
-//import androidx.compose.foundation.rememberScrollState
-//import androidx.compose.foundation.shape.CircleShape
-//import androidx.compose.foundation.verticalScroll
-//import androidx.compose.material.*
-//import androidx.compose.material.icons.Icons
-//import androidx.compose.material.icons.filled.Edit
-//import androidx.compose.material3.Scaffold
-//import androidx.compose.runtime.Composable
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.draw.clip
-//import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.text.style.TextAlign
-//import androidx.compose.ui.tooling.preview.Preview
-//import androidx.compose.ui.unit.dp
-//import androidx.compose.ui.unit.sp
-//import androidx.navigation.NavController
-//import androidx.navigation.NavHostController
-//import androidx.navigation.compose.rememberNavController
-//import androidx.navigation.navOptions
-//import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
-//
-//@Composable
-//fun userProfileScreen(navController: NavController){
-//    Scaffold(
-//        bottomBar = { Footer(navController = navController) }
-//    ) { innerPadding ->
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(innerPadding)
-//                .verticalScroll(rememberScrollState())
-//        ) {
-//            UserProfile(navController = navController)
-//        }
-//        }
-//    }
-//
-//@Composable
-//fun UserProfile(navController: NavController) {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color.White)
-//            .padding(horizontal = 16.dp)
-//    ) {
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Title
-//        Text(
-//            text = "Profile Settings",
-//            fontSize = 20.sp,
-//            color = Color.Black,
-//            modifier = Modifier.fillMaxWidth(),
-//            textAlign = TextAlign.Center
-//        )
-//
-//        Spacer(modifier = Modifier.height(32.dp))
-//
-//        // Profile Image Placeholder
-//        Box(
-//            modifier = Modifier
-//                .size(100.dp)
-//                .clip(CircleShape)
-//                .background(Color.Gray)
-//                .align(Alignment.CenterHorizontally)
-//        )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Full Name
-//        Text(
-//            text = "Fulan bin Awan",
-//            fontSize = 18.sp,
-//            color = Color.Black,
-//            modifier = Modifier.align(Alignment.CenterHorizontally)
-//        )
-//
-//        Spacer(modifier = Modifier.height(32.dp))
-//
-//        // Name Field
-//        OutlinedTextField(
-//            value = "Fulan bin Awan",
-//            onValueChange = { /* Static for now */ },
-//            label = { Text("Nama") },
-//            trailingIcon = {
-//                Icon(
-//                    imageVector = Icons.Default.Edit,
-//                    contentDescription = "Edit",
-//                    tint = Color.Gray
-//                )
-//            },
-//            modifier = Modifier.fillMaxWidth(),
-//            readOnly = true
-//        )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Phone Number Field
-//        OutlinedTextField(
-//            value = "083456789",
-//            onValueChange = { /* Static for now */ },
-//            label = { Text("Nomor Telepon") },
-//            trailingIcon = {
-//                Icon(
-//                    imageVector = Icons.Default.Edit,
-//                    contentDescription = "Edit",
-//                    tint = Color.Gray
-//                )
-//            },
-//            modifier = Modifier.fillMaxWidth(),
-//            readOnly = true
-//        )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Email Field
-//        OutlinedTextField(
-//            value = "pemudatahajud@gmail.com",
-//            onValueChange = { /* Static for now */ },
-//            label = { Text("Email") },
-//            trailingIcon = {
-//                Icon(
-//                    imageVector = Icons.Default.Edit,
-//                    contentDescription = "Edit",
-//                    tint = Color.Gray
-//                )
-//            },
-//            modifier = Modifier.fillMaxWidth(),
-//            readOnly = true
-//        )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Address Field
-//        OutlinedTextField(
-//            value = "Jln. Raya Tlogomas Gg. 3 No.66, Tlogomas",
-//            onValueChange = { /* Static for now */ },
-//            label = { Text("Alamat") },
-//            trailingIcon = {
-//                Icon(
-//                    imageVector = Icons.Default.Edit,
-//                    contentDescription = "Edit",
-//                    tint = Color.Gray
-//                )
-//            },
-//            modifier = Modifier.fillMaxWidth(),
-//            readOnly = true
-//        )
-//
-//        Spacer(modifier = Modifier.height(32.dp))
-//
-//        // Change Password Option
-//        Text(
-//            text = "Ganti Kata Sandi",
-//            fontSize = 16.sp,
-//            color = Color.Blue,
-//            modifier = Modifier
-//                .align(Alignment.Start)
-//                .clickable { /* Static for now */ }
-//        )
-//
-//        Spacer(modifier = Modifier.height(32.dp))
-//
-//        Text(
-//            text = "Keluar",
-//            fontSize = 16.sp,
-//            color = Color.Red,
-//            modifier = Modifier
-//                .align(Alignment.Start)
-//                .clickable { /* Static for now */ }
-//        )
-//
-//    }
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun ProfileSettingsScreenPreview(navController: NavHostController = rememberNavController()) {
-//    userProfileScreen(navController = navController)
-//}
-
-
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 //import androidx.activity.compose.R
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -218,11 +35,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -232,17 +46,79 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.sepertigamalamdev.sahabatmasjid.homepage.Footer
+
+import coil.compose.SubcomposeAsyncImage
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sepertigamalamdev.sahabatmasjid.management.UserViewModel
+
+
+
+@Composable
+fun PhotoProfile(
+    photoUrl: String,
+    username: String, // Untuk inisial jika tidak ada foto
+    modifier: Modifier = Modifier,
+    onPhotoClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .size(150.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant) // Warna latar belakang jika gambar gagal/kosong
+            .clickable { onPhotoClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        if (photoUrl.isNotBlank()) {
+            SubcomposeAsyncImage(
+                model = photoUrl,
+                contentDescription = "Foto Profil $username",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                loading = {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                },
+                error = { // Tampilan jika gagal load atau URL tidak valid
+                    InitialAvatar(name = username)
+                }
+            )
+        } else {
+            // Tampilkan inisial atau ikon placeholder jika tidak ada photoUrl
+            InitialAvatar(name = username)
+        }
+    }
+}
+
+@Composable
+fun InitialAvatar(name: String, modifier: Modifier = Modifier) {
+    val initial = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = initial,
+            style = MaterialTheme.typography.headlineLarge, // Ukuran teks inisial
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+        // Atau gunakan Ikon:
+        // Icon(
+        //     imageVector = Icons.Default.Person,
+        //     contentDescription = "Placeholder Foto Profil",
+        //     modifier = Modifier.size(80.dp),
+        //     tint = MaterialTheme.colorScheme.onSurfaceVariant
+        // )
+    }
+}
 
 @Composable
 fun ProfileUser(navController: NavController) {
@@ -254,14 +130,24 @@ fun ProfileUser(navController: NavController) {
         }
     }
 }
+
+
 @Composable
-fun Profile(navController: NavController) {
-    var username by remember { mutableStateOf("") }
-    var nickname by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(true) }
+fun Profile(
+    navController: NavController,
+    // Terima kedua ViewModel
+    userViewModel: UserViewModel = viewModel(), // ViewModel luar untuk aksi upload
+    userProfileViewModel: UserViewModel.UserProfileViewModel = viewModel() // ViewModel nested untuk display data
+) {
+    // Ambil data dari UserProfileViewModel
+    // State ini akan otomatis update jika listener di UserProfileViewModel aktif
+    val username = userProfileViewModel.username
+    val nickname = userProfileViewModel.nickname
+    val phoneNumber = userProfileViewModel.phoneNumber
+    val email = userProfileViewModel.email
+    val address = userProfileViewModel.address
+    val photoUrl = userProfileViewModel.photoUrl // Ambil photoUrl
+    val isLoadingProfile = userProfileViewModel.isLoading
 
     val currentUser = FirebaseAuth.getInstance().currentUser
     val uid = currentUser?.uid
@@ -271,110 +157,120 @@ fun Profile(navController: NavController) {
         "name" to "Nama",
         "nickname" to "Nama Panggilan",
         "phoneNumber" to "Nomor Handphone",
-        "email" to "Email",
+        "email" to "Email", // Anda memiliki ini, meskipun field email biasanya tidak diedit pengguna setelah dibuat
         "address" to "Alamat"
     )
 
+    // Tidak perlu DisposableEffect di sini lagi jika UserProfileViewModel sudah menanganinya
+    // Data akan mengalir dari UserProfileViewModel
 
-    // Listener untuk pembaruan data secara real-time
-    DisposableEffect(uid) {
-        if (uid != null) {
-            val database = FirebaseDatabase.getInstance()
-            val userRef = database.getReference("users").child(uid)
-
-            val listener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    snapshot.let {
-                        username = it.child("name").getValue(String::class.java) ?: ""
-                        nickname = it.child("nickname").getValue(String::class.java) ?: ""
-                        email = it.child("email").getValue(String::class.java) ?: ""
-                        address = it.child("address").getValue(String::class.java) ?: ""
-                        phoneNumber = it.child("phoneNumber").getValue(String::class.java) ?: ""
+    // Image Picker Launcher
+    val pickMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri: Uri? ->
+            if (uri != null && currentUser?.uid != null) {
+                val currentUid = currentUser.uid
+                Log.d("ProfileScreen", "Memulai direct upload untuk UID: $currentUid")
+                userViewModel.uploadProfilePhotoDirectly( // Panggil fungsi direct upload
+                    userId = currentUid,
+                    imageUri = uri,
+                    context = context,
+                    bucketName = "profiles" // Pastikan nama bucket sesuai
+                ) { success, newUrlOrError ->
+                    if (success && newUrlOrError != null) {
+                        Toast.makeText(context, "Foto profil berhasil diperbarui!", Toast.LENGTH_SHORT).show()
+                        // UserProfileViewModel akan otomatis update karena ValueEventListener-nya,
+                        // sehingga photoUrl di Profile Composable akan recompose.
+                    } else {
+                        Toast.makeText(context, "Gagal memperbarui foto: $newUrlOrError", Toast.LENGTH_LONG).show()
                     }
-                    isLoading = false
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(
-                        context, "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT
-                    ).show()
-                    isLoading = false
                 }
             }
-
-            userRef.addValueEventListener(listener)
-
-            // Hapus listener saat composable dihancurkan
-            onDispose {
-                userRef.removeEventListener(listener)
-            }
-        } else {
-            navController.navigate("Login")
         }
+    )
 
-        onDispose { } // Dibutuhkan oleh DisposableEffect meskipun tidak ada tambahan logika
-    }
-
-    if (isLoading) {
-        // Tampilkan indikator loading jika data sedang dimuat
+    if (isLoadingProfile && uid != null) { // Hanya tampilkan loading jika UID ada dan sedang loading
         Box(
             modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
         }
-    } else {
+    } else if (uid == null && !isLoadingProfile) { // Jika UID null setelah loading selesai (atau tidak pernah mulai)
+        Box(
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Anda belum login.")
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = { navController.navigate("login") {popUpTo(0)} } ) {
+                    Text("Login Sekarang")
+                }
+            }
+        }
+    }
+    else {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(MaterialTheme.colorScheme.background), // Gunakan warna tema
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(bottom = 16.dp) // Padding bawah untuk LazyColumn
         ) {
             item {
                 Text(
-                    text = "Profil",
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight(500)
+                    text = "Profil Saya", // Judul lebih deskriptif
+                    modifier = Modifier.padding(top = 24.dp, bottom = 16.dp), // Padding lebih
+                    style = MaterialTheme.typography.headlineSmall, // Style yang lebih sesuai
+                    fontWeight = FontWeight.SemiBold // Sedikit tebal
                 )
             }
 
             item {
-                PhotoProfile()
+                PhotoProfile(
+                    photoUrl = photoUrl,
+                    username = username, // Untuk inisial jika foto tidak ada
+                    onPhotoClick = {
+                        pickMediaLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                // Tombol kecil di bawah foto untuk ganti foto, alternatif selain klik foto
+                TextButton(onClick = {
+                    pickMediaLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }) {
+                    Text("Ganti Foto")
+                }
             }
 
             item {
                 Text(
-                    text = if (username.isNotEmpty()) username else "Nama belum diisi",
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    style = MaterialTheme.typography.bodyLarge
+                    text = if (username.isNotEmpty()) username else "Nama Belum Diatur",
+                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                    style = MaterialTheme.typography.titleLarge // Nama lebih besar
                 )
             }
 
             item {
                 DataProfile(
-                    navController = navController,
                     username = username,
                     nickname = nickname,
                     phoneNumber = phoneNumber,
                     email = email,
                     address = address,
+                    navController = navController,
                     onSave = { fieldKey, newValue ->
                         if (uid != null) {
-                            val updates: Map<String, Any> =
-                                mapOf(fieldKey to newValue) // Simpan sebagai String
-
+                            val updates: Map<String, Any> = mapOf(fieldKey to newValue)
                             val fieldMessage = fieldMessageMap[fieldKey] ?: fieldKey
                             FirebaseDatabase.getInstance().getReference("users").child(uid)
                                 .updateChildren(updates).addOnSuccessListener {
-                                    Toast.makeText(
-                                        context,
-                                        "$fieldMessage berhasil diperbarui!",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast.makeText(context, "$fieldMessage berhasil diperbarui!", Toast.LENGTH_SHORT).show()
                                 }.addOnFailureListener {
-                                    Toast.makeText(
-                                        context, "Gagal memperbarui $fieldMessage.", Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast.makeText(context, "Gagal memperbarui $fieldMessage.", Toast.LENGTH_SHORT).show()
                                 }
                         }
                     },
